@@ -18,6 +18,30 @@
   "username": "વપરાશકર્તા નામ",
   "password": "પાસવર્ડ",
   "role": "ભૂમિકા",
-  "login": "લોગિન"
+  "login": "લોગિન",
+  
+  "welcome": "સ્વાગત છે, રમેશ 👋",
+  "village_name": "ગામ: રામપુરા",
+  "connected": "ઇન્ટરનેટ સાથે જોડાયેલ",
+
+  "rainfall": "વરસાદ",
+  "rainfall_subtitle": "આજનો વરસાદ નોંધો",
+
+  "pumping": "પંપિંગ",
+  "pumping_subtitle": "સિંચાઈના કલાકો નોંધો",
+
+  "history": "ઇતિહાસ",
+  "history_subtitle": "અગાઉની નોંધો જુઓ",
+
+  "voice_entry": "અવાજ દ્વારા એન્ટ્રી",
+  "voice_entry_subtitle": "વરસાદ અથવા પંપિંગ કલાકો બોલીને નોંધો",
+
+  "offline_mode": "ઓફલાઇન મોડ",
+  "offline_mode_subtitle": "ઇન્ટરનેટ પાછું આવતાં ડેટા સિંક થશે",
+
+  "contact_crp": "CRP નો સંપર્ક કરો",
+  "contact_crp_subtitle": "મદદ જોઈએ? તમારા CRP નો સંપર્ક કરો"
+
+
 
 }

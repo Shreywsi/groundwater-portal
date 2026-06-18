@@ -1,7 +1,5 @@
 {
   "dashboard": "Farmer Dashboard",
-  "rainfall": "Enter Rainfall",
-  "pumping": "Enter Pumping Hours",
   "well": "View My Well",
   "trends": "View Trends",
   "history": "History",
@@ -18,5 +16,30 @@
   "username": "Username",
   "password": "Password",
   "role": "Role",
-  "login": "Login"
+  "login": "Login",
+  
+  "welcome": "Welcome, Ramesh 👋",
+  "village_name": "Village: Rampura",
+  
+  
+  "connected": "Connected to Internet",
+
+  "rainfall": "Rainfall",
+  "rainfall_subtitle": "Record today's rainfall",
+
+  "pumping": "Pumping",
+  "pumping_subtitle": "Record irrigation hours",
+
+  "history": "History",
+  "history_subtitle": "View previous entries",
+
+  "voice_entry": "Voice Entry",
+  "voice_entry_subtitle": "Speak rainfall or pumping hours",
+
+  "offline_mode": "Offline Mode",
+  "offline_mode_subtitle": "Data syncs when internet returns",
+
+  "contact_crp": "Contact CRP",
+  "contact_crp_subtitle": "Need help? Contact your CRP"
+
 }

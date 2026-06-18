@@ -8,15 +8,29 @@ import {
 import LanguageSelector from "./LanguageSelector";
 
 function Navbar() {
-
   return (
     <AppBar position="fixed">
-
-      <Toolbar>
-
+      <Toolbar
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 1,
+          py: 1
+        }}
+      >
         <Typography
           variant="h6"
-          sx={{ flexGrow: 1 }}
+          sx={{
+            flexGrow: 1,
+            fontWeight: "bold",
+            fontSize: {
+              xs: "1rem",
+              sm: "1.2rem",
+              md: "1.4rem"
+            }
+          }}
         >
           Groundwater Management Portal
         </Typography>
@@ -29,9 +43,7 @@ function Navbar() {
         >
           <LanguageSelector />
         </Box>
-
       </Toolbar>
-
     </AppBar>
   );
 }
