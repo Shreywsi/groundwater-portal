@@ -1,0 +1,22 @@
+{
+  "dashboard": "Farmer Dashboard",
+  "rainfall": "Enter Rainfall",
+  "pumping": "Enter Pumping Hours",
+  "well": "View My Well",
+  "trends": "View Trends",
+  "history": "History",
+  "save": "Save",
+  "submit": "Submit",
+  "date": "Date",
+  "rainfall_mm": "Rainfall (mm)",
+  "my_well": "My Well",
+  "crop": "Crop",
+  "hours": "Pumping Hours",
+
+  "title": "Groundwater Management Portal",
+  "subtitle": "AI-Enabled Community Groundwater Monitoring Platform",
+  "username": "Username",
+  "password": "Password",
+  "role": "Role",
+  "login": "Login"
+}
