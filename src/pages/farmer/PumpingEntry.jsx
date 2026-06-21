@@ -1,3 +1,4 @@
+import { useState } from "react";
 import FarmerLayout from "../../layouts/FarmerLayout";
 import {
   Typography,
@@ -5,16 +6,52 @@ import {
   Button,
   Card,
   CardContent,
-  MenuItem
+  MenuItem,
 } from "@mui/material";
 
 function PumpingEntry() {
+  const [crop, setCrop] = useState("");
+  const [hours, setHours] = useState("");
+
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/pumping/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            crop: crop,
+            hours: parseFloat(hours),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to save data");
+      }
+
+      const data = await response.json();
+
+      console.log("Saved successfully:", data);
+
+      alert("Pumping data saved successfully!");
+
+      // Clear form after successful submission
+      setCrop("");
+      setHours("");
+    } catch (error) {
+      console.error(error);
+      alert("Error saving data");
+    }
+  };
+
   return (
     <FarmerLayout>
-
       <Card>
         <CardContent>
-
           <Typography variant="h4" gutterBottom>
             🚜 Pumping Entry
           </Typography>
@@ -24,6 +61,7 @@ function PumpingEntry() {
             label="My Well"
             value="W001"
             margin="normal"
+            disabled
           />
 
           <TextField
@@ -31,29 +69,33 @@ function PumpingEntry() {
             fullWidth
             label="Crop"
             margin="normal"
+            value={crop}
+            onChange={(e) => setCrop(e.target.value)}
           >
-            <MenuItem>🌾 Wheat</MenuItem>
-            <MenuItem>🌽 Maize</MenuItem>
-            <MenuItem>🧅 Onion</MenuItem>
+            <MenuItem value="Wheat">🌾 Wheat</MenuItem>
+            <MenuItem value="Maize">🌽 Maize</MenuItem>
+            <MenuItem value="Onion">🧅 Onion</MenuItem>
           </TextField>
 
           <TextField
             fullWidth
             label="Pumping Hours"
+            type="number"
             margin="normal"
+            value={hours}
+            onChange={(e) => setHours(e.target.value)}
           />
 
           <Button
             variant="contained"
             size="large"
             sx={{ mt: 3 }}
+            onClick={handleSubmit}
           >
             Submit
           </Button>
-
         </CardContent>
       </Card>
-
     </FarmerLayout>
   );
 }

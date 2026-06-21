@@ -72,36 +72,36 @@ function FarmerDashboard() {
 
   const cards = [
   {
-    title: "Pumping",
-    subtitle: "Record irrigation hours",
+    title: t("pumping"),
+    subtitle: t("pumping_subtitle"),
     icon: Agriculture,
     color: "#ff9800",
     path: "/farmer/pumping"
   },
   {
-    title: "Water Table",
-    subtitle: "Enter water table depth",
+    title: t("water_table"),
+    subtitle: t("water_table_subtitle"),
     icon: WaterDrop,
     color: "#2196f3",
     path: "/farmer/water-table"
   },
   {
-    title: "Water Level",
-    subtitle: "Record groundwater level",
+    title: t("water_level"),
+    subtitle: t("water_level_subtitle"),
     icon: Waves,
     color: "#4caf50",
     path: "/farmer/water-level"
   },
   {
-    title: "TDS",
-    subtitle: "Enter total dissolved solids",
+    title: t("tds"),
+    subtitle: t("tds_subtitle"),
     icon: Opacity,
     color: "#9c27b0",
     path: "/farmer/tds"
   },
   {
-    title: "Salinity",
-    subtitle: "Record salinity values",
+    title: t("salinity"),
+    subtitle: t("salinity_subtitle"),
     icon: Science,
     color: "#ff5722",
     path: "/farmer/salinity"

@@ -1,122 +1,194 @@
-// Thin async-wrapper service layer.
-// Today this returns mock data with a simulated delay.
-// Tomorrow, replace the body of each function with a real fetch()/axios call —
-// no page component needs to change since they all call through this file.
+// src/data/dataService.js
 
-import {
-  mockUsers,
-  mockVillages,
-  mockWells,
-  mockRecentActivity,
-  mockAuditLogs,
-  mockSystemHealth,
-  mockProfile,
-} from './mockData';
+const API_BASE = "http://127.0.0.1:8000/api";
 
-const delay = (ms = 250) => new Promise((resolve) => setTimeout(resolve, ms));
 
-let usersStore = [...mockUsers];
-let villagesStore = [...mockVillages];
-let wellsStore = [...mockWells];
+// ==========================================
+// Fetch all module data from Django
+// ==========================================
+async function fetchAllData() {
+  try {
+    const [
+      pumpingResponse,
+      waterTableResponse,
+      waterLevelResponse,
+      tdsResponse,
+      salinityResponse
+    ] = await Promise.all([
+      fetch(`${API_BASE}/pumping/`),
+      fetch(`${API_BASE}/watertable/`),
+      fetch(`${API_BASE}/waterlevel/`),
+      fetch(`${API_BASE}/tds/`),
+      fetch(`${API_BASE}/salinity/`)
+    ]);
 
-// ---- Users ----
-export async function fetchUsers() {
-  await delay();
-  return [...usersStore];
-}
-export async function createUser(user) {
-  await delay();
-  const newUser = { ...user, id: `USR-${1000 + usersStore.length + 1}` };
-  usersStore = [newUser, ...usersStore];
-  return newUser;
-}
-export async function updateUser(id, updates) {
-  await delay();
-  usersStore = usersStore.map((u) => (u.id === id ? { ...u, ...updates } : u));
-  return usersStore.find((u) => u.id === id);
-}
-export async function deleteUser(id) {
-  await delay();
-  usersStore = usersStore.filter((u) => u.id !== id);
-  return true;
-}
+    const pumping = await pumpingResponse.json();
+    const waterTable = await waterTableResponse.json();
+    const waterLevel = await waterLevelResponse.json();
+    const tds = await tdsResponse.json();
+    const salinity = await salinityResponse.json();
 
-// ---- Villages ----
-export async function fetchVillages() {
-  await delay();
-  return [...villagesStore];
-}
-export async function createVillage(village) {
-  await delay();
-  const newVillage = {
-    ...village,
-    id: `VLG-${String(villagesStore.length + 1).padStart(2, '0')}`,
-    farmers: 0,
-    wells: 0,
-  };
-  villagesStore = [newVillage, ...villagesStore];
-  return newVillage;
-}
-export async function updateVillage(id, updates) {
-  await delay();
-  villagesStore = villagesStore.map((v) => (v.id === id ? { ...v, ...updates } : v));
-  return villagesStore.find((v) => v.id === id);
-}
-export async function deleteVillage(id) {
-  await delay();
-  villagesStore = villagesStore.filter((v) => v.id !== id);
-  return true;
+    return {
+      pumping,
+      waterTable,
+      waterLevel,
+      tds,
+      salinity
+    };
+  } catch (error) {
+    console.error("Error fetching data:", error);
+
+    return {
+      pumping: [],
+      waterTable: [],
+      waterLevel: [],
+      tds: [],
+      salinity: []
+    };
+  }
 }
 
-// ---- Wells ----
-export async function fetchWells() {
-  await delay();
-  return [...wellsStore];
-}
-export async function createWell(well) {
-  await delay();
-  const newWell = { ...well, id: `WEL-${2000 + wellsStore.length + 1}`, status: well.status || 'Active' };
-  wellsStore = [newWell, ...wellsStore];
-  return newWell;
-}
-export async function updateWell(id, updates) {
-  await delay();
-  wellsStore = wellsStore.map((w) => (w.id === id ? { ...w, ...updates } : w));
-  return wellsStore.find((w) => w.id === id);
-}
-export async function deleteWell(id) {
-  await delay();
-  wellsStore = wellsStore.filter((w) => w.id !== id);
-  return true;
-}
 
-// ---- Dashboard / read-only ----
+// ==========================================
+// Dashboard Summary
+// ==========================================
 export async function fetchDashboardSummary() {
-  await delay();
+  const data = await fetchAllData();
+
+  const totalRecords =
+    data.pumping.length +
+    data.waterTable.length +
+    data.waterLevel.length +
+    data.tds.length +
+    data.salinity.length;
+
   return {
-    totalUsers: usersStore.length,
-    totalFarmers: usersStore.filter((u) => u.role === 'Farmer').length,
-    totalCRPs: usersStore.filter((u) => u.role === 'CRP').length,
-    totalResearchers: usersStore.filter((u) => u.role === 'Researcher').length,
-    totalVillages: villagesStore.length,
-    totalWells: wellsStore.length,
-    totalRecords: 1284,
-    activeUsers: usersStore.filter((u) => u.status === 'Active').length,
+    totalUsers: 0,
+    totalFarmers: 0,
+    totalCRPs: 0,
+    totalResearchers: 0,
+    totalVillages: 0,
+    totalWells: 0,
+    totalRecords,
+    activeUsers: 0
   };
 }
+
+
+// ==========================================
+// Recent Activity Table
+// ==========================================
 export async function fetchRecentActivity() {
-  await delay();
-  return [...mockRecentActivity];
+  const data = await fetchAllData();
+
+  let activity = [];
+
+  // Pumping
+  data.pumping.forEach((item) => {
+    activity.push({
+      date: item.date,
+      user: item.crop,
+      role: "Farmer",
+      action: `${item.hours} hours pumping`
+    });
+  });
+
+  // Water Table
+  data.waterTable.forEach((item) => {
+    activity.push({
+      date: item.date,
+      user: "Farmer",
+      role: "Farmer",
+      action: `Water table = ${item.depth} m`
+    });
+  });
+
+  // Water Level
+  data.waterLevel.forEach((item) => {
+    activity.push({
+      date: item.date,
+      user: "Farmer",
+      role: "Farmer",
+      action: `Water level = ${item.level}`
+    });
+  });
+
+  // TDS
+  data.tds.forEach((item) => {
+    activity.push({
+      date: item.date,
+      user: "Farmer",
+      role: "Farmer",
+      action: `TDS = ${item.value}`
+    });
+  });
+
+  // Salinity
+  data.salinity.forEach((item) => {
+    activity.push({
+      date: item.date,
+      user: "Farmer",
+      role: "Farmer",
+      action: `Salinity = ${item.value}`
+    });
+  });
+
+  // newest first
+  activity.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  return activity;
 }
+
+
+// ==========================================
+// Users
+// ==========================================
+export async function fetchUsers() {
+  return [];
+}
+
+
+// ==========================================
+// Villages
+// ==========================================
+export async function fetchVillages() {
+  return [];
+}
+
+
+// ==========================================
+// Wells
+// ==========================================
+export async function fetchWells() {
+  return [];
+}
+
+
+// ==========================================
+// Audit Logs
+// ==========================================
 export async function fetchAuditLogs() {
-  await delay();
-  return [...mockAuditLogs];
+  return [];
 }
+
+
+// ==========================================
+// System Health
+// ==========================================
 export async function fetchSystemHealth() {
-  await delay();
-  return { ...mockSystemHealth };
+  return {
+    cpu: 0,
+    memory: 0,
+    storage: 0
+  };
 }
+
+
+// ==========================================
+// Profile
+// ==========================================
 export async function fetchProfile() {
-  await delay();
-  return { ...mockProfile };
+  return {
+    name: "Admin"
+  };
 }

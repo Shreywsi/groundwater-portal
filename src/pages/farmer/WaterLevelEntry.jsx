@@ -1,3 +1,4 @@
+import { useState } from "react";
 import FarmerLayout from "../../layouts/FarmerLayout";
 import {
   Typography,
@@ -8,9 +9,37 @@ import {
 } from "@mui/material";
 
 function WaterLevelEntry() {
+  const [level, setLevel] = useState("");
+
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/waterlevel/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            level: parseFloat(level),
+          }),
+        }
+      );
+
+      if (response.ok) {
+        alert("Water level data saved successfully!");
+        setLevel("");
+      } else {
+        alert("Error saving data");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to connect to backend");
+    }
+  };
+
   return (
     <FarmerLayout>
-
       <Card>
         <CardContent>
 
@@ -20,28 +49,22 @@ function WaterLevelEntry() {
 
           <TextField
             fullWidth
-            label="My Well"
-            value="W001"
-            margin="normal"
-          />
-
-          <TextField
-            fullWidth
             label="Water Level (m)"
             margin="normal"
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
           />
 
           <Button
             variant="contained"
-            size="large"
             sx={{ mt: 3 }}
+            onClick={handleSubmit}
           >
             Submit
           </Button>
 
         </CardContent>
       </Card>
-
     </FarmerLayout>
   );
 }

@@ -1,47 +1,42 @@
 {
-  "dashboard": "ખેડૂત ડેશબોર્ડ",
-  "rainfall": "વરસાદ નોંધો",
-  "pumping": "પંપિંગ કલાકો નોંધો",
-  "well": "મારું કૂવું જુઓ",
-  "trends": "પ્રવૃત્તિઓ જુઓ",
-  "history": "ઇતિહાસ",
-  "save": "સાચવો",
-  "submit": "સબમિટ કરો",
-  "date": "તારીખ",
-  "rainfall_mm": "વરસાદ (મિમી)",
-  "my_well": "મારું કૂવું",
-  "crop": "પાક",
-  "hours": "પંપિંગ કલાકો",
+  "welcome": "ફરીથી આપનું સ્વાગત છે",
+  "village_name": "વડાલી ગામ, સાબરકાંઠા જિલ્લો",
 
-  "title": "ભૂગર્ભજળ વ્યવસ્થાપન પોર્ટલ",
-  "subtitle": "એઆઈ આધારિત સમુદાય ભૂગર્ભજળ મોનિટરિંગ પ્લેટફોર્મ",
-  "username": "વપરાશકર્તા નામ",
-  "password": "પાસવર્ડ",
-  "role": "ભૂમિકા",
-  "login": "લોગિન",
-  
-  "welcome": "સ્વાગત છે, રમેશ 👋",
-  "village_name": "ગામ: રામપુરા",
-  "connected": "ઇન્ટરનેટ સાથે જોડાયેલ",
-
-  "rainfall": "વરસાદ",
-  "rainfall_subtitle": "આજનો વરસાદ નોંધો",
+  "connected": "જોડાયેલ",
+  "offline_mode": "ઓફલાઇન સ્થિતિ",
+  "syncing_live": "બધા ડેટા લાઇવ સિંક થઈ રહ્યા છે",
+  "will_sync_when_online": "ઓનલાઇન થતાં ડેટા સિંક થશે",
 
   "pumping": "પંપિંગ",
   "pumping_subtitle": "સિંચાઈના કલાકો નોંધો",
 
+  "water_table": "જળસ્તર કોષ્ટક",
+  "water_table_subtitle": "જળસ્તરની ઊંડાઈ દાખલ કરો",
+
+  "water_level": "જળસ્તર",
+  "water_level_subtitle": "ભૂગર્ભ જળસ્તર નોંધો",
+
+  "tds": "TDS",
+  "tds_subtitle": "કુલ દ્રાવ્ય ઘન પદાર્થો દાખલ કરો",
+
+  "salinity": "ખારાશ",
+  "salinity_subtitle": "ખારાશના મૂલ્યો નોંધો",
+
   "history": "ઇતિહાસ",
-  "history_subtitle": "અગાઉની નોંધો જુઓ",
-
-  "voice_entry": "અવાજ દ્વારા એન્ટ્રી",
-  "voice_entry_subtitle": "વરસાદ અથવા પંપિંગ કલાકો બોલીને નોંધો",
-
-  "offline_mode": "ઓફલાઇન મોડ",
-  "offline_mode_subtitle": "ઇન્ટરનેટ પાછું આવતાં ડેટા સિંક થશે",
+  "history_subtitle": "પાછલી નોંધો જુઓ",
 
   "contact_crp": "CRP નો સંપર્ક કરો",
-  "contact_crp_subtitle": "મદદ જોઈએ? તમારા CRP નો સંપર્ક કરો"
+  "contact_crp_subtitle": "તમારા CRP સુધી પહોંચો",
 
+  "voice_entry": "અવાજ દ્વારા નોંધણી",
+  "listening": "સાંભળી રહ્યું છે...",
+  "tap_to_record": "રેકોર્ડિંગ શરૂ કરવા માટે માઇક્રોફોન દબાવો",
+  "voice_entry_coming_soon": "અવાજ દ્વારા નોંધણી સુવિધા ટૂંક સમયમાં ઉપલબ્ધ થશે",
 
+  "username": "વપરાશકર્તા નામ",
+  "password": "પાસવર્ડ",
+  "role": "ભૂમિકા",
 
+  "title": "તમારા ખાતામાં સાઇન ઇન કરો",
+  "subtitle": "પોર્ટલમાં પ્રવેશ માટે તમારી માહિતી દાખલ કરો"
 }
