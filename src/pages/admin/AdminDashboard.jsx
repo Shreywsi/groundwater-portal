@@ -20,6 +20,8 @@ import WaterLevelChart from "../../components/charts/WaterLevelChart";
 import TDSChart from "../../components/charts/TDSChart";
 import SalinityChart from "../../components/charts/SalinityChart";
 
+import WaterMap from "../../components/WaterMap";
+
 import {
   fetchDashboardSummary,
   fetchRecentActivity,
@@ -232,6 +234,28 @@ export default function AdminDashboard() {
           </Grid>
 
         </Grid>
+        {/* GIS Map */}
+<Card
+  elevation={3}
+  sx={{
+    p: { xs: 2, sm: 3, md: 4 },
+    borderRadius: 3
+  }}
+>
+  <Typography variant="h6" mb={2}>
+    Water Resources Map
+  </Typography>
+
+  <Box
+    sx={{
+      width: "100%",
+      height: 500
+    }}
+  >
+    <WaterMap />
+  </Box>
+</Card>
+
 
         {/* Recent Activity */}
         <Box sx={{ overflowX: "auto" }}>

@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "type": "Well",
+    "name": "Well A",
+    "latitude": 23.2451,
+    "longitude": 69.6661,
+    "water_level": 12,
+    "tds": 500
+  },
+  {
+    "id": 2,
+    "type": "Well",
+    "name": "Well B",
+    "latitude": 23.2465,
+    "longitude": 69.6680,
+    "water_level": 15,
+    "tds": 1200
+  },
+  {
+    "id": 3,
+    "type": "Pond",
+    "name": "Pond A",
+    "latitude": 23.2482,
+    "longitude": 69.6702
+  }
+]
