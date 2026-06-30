@@ -1,32 +1,11 @@
 from rest_framework import serializers
-from .models import Pumping, WaterLevel, WaterTable, TDS, Salinity
 
 
-class PumpingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Pumping
-        fields = '__all__'
-
-
-class WaterLevelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WaterLevel
-        fields = '__all__'
-
-
-class WaterTableSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WaterTable
-        fields = '__all__'
-
-
-class TDSSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TDS
-        fields = '__all__'
-
-
-class SalinitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Salinity
-        fields = '__all__'
+class WellSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    well_name = serializers.CharField()
+    village = serializers.CharField()
+    latitude = serializers.FloatField()
+    longitude = serializers.FloatField()
+    depth_m = serializers.FloatField()
+    water_level_m = serializers.FloatField()

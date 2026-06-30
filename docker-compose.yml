@@ -1,0 +1,21 @@
+services:
+  db:
+    image: timescale/timescaledb-ha:pg17
+
+    container_name: water-db
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: water_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/home/postgres/pgdata/data
+
+volumes:
+  postgres_data:

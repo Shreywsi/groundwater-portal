@@ -4,11 +4,11 @@ import LoginPage from "../pages/LoginPage";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 
 import FarmerDashboard from "../pages/farmer/FarmerDashboard";
-import PumpingEntry from "../pages/farmer/PumpingEntry";
-import WaterTableEntry from "../pages/farmer/WaterTableEntry";
+import PumpingEntry from "../pages/crp/PumpingEntry";
+import WaterTableEntry from "../pages/crp/WaterTableEntry";
 import WaterLevelEntry from "../pages/farmer/WaterLevelEntry";
-import TDSEntry from "../pages/farmer/TDSEntry";
-import SalinityEntry from "../pages/farmer/SalinityEntry";
+import TDSEntry from "../pages/crp/TDSEntry";
+import SalinityEntry from "../pages/crp/SalinityEntry";
 
 import CRPDashboard from "../pages/crp/CRPDashboard";
 import ResearcherDashboard from "../pages/researcher/ResearcherDashboard";

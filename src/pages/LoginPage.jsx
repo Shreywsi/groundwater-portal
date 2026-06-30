@@ -8,7 +8,7 @@ import {
 import PersonIcon from "@mui/icons-material/Person";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
-import GrassOutlinedIcon from "@mui/icons-material/GrassOutlined";
+//import GrassOutlinedIcon from "@mui/icons-material/GrassOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import ScienceOutlinedIcon from "@mui/icons-material/ScienceOutlined";
 import WaterDropOutlinedIcon from "@mui/icons-material/WaterDropOutlined";
@@ -21,7 +21,6 @@ const FORM_BG = "#fdf8f2";
 
 const ROLES = [
   { value: "admin",      label: "Admin",      Icon: ShieldOutlinedIcon },
-  { value: "farmer",     label: "Farmer",     Icon: GrassOutlinedIcon },
   { value: "crp",        label: "CRP",        Icon: GroupsOutlinedIcon },
   { value: "researcher", label: "Researcher", Icon: ScienceOutlinedIcon },
 ];
@@ -88,7 +87,7 @@ function LoginPage() {
             color: "#fff", fontWeight: 500,
             textAlign: "center", lineHeight: 1.4, mb: 1,
           }}>
-            Gujarat Water<br />Management Portal
+             Water<br />Management Portal
           </Typography>
 
           <Box sx={{

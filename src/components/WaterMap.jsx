@@ -1,100 +1,368 @@
+import { useEffect, useRef, useState } from "react";
+
+import "leaflet/dist/leaflet.css";
+import "leaflet-defaulticon-compatibility";
+import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
+
 import {
   MapContainer,
   TileLayer,
   Marker,
-  Popup,
-  Polygon,
+  useMapEvents,
 } from "react-leaflet";
 
-import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 
-const wells = [
-  {
-    id: 1,
-    name: "Well A",
-    position: [23.2451, 69.6661],
-    waterLevel: 12,
-  },
-  {
-    id: 2,
-    name: "Well B",
-    position: [23.265, 69.69],
-    waterLevel: 18,
-  },
-];
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
-const pondCoordinates = [
-  [23.23, 69.62],
-  [23.235, 69.62],
-  [23.235, 69.635],
-  [23.23, 69.635],
-];
+import {
+  Box,
+  Paper,
+  Typography,
+  IconButton,
+  Skeleton,
+  Fade
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import PlaceIcon from "@mui/icons-material/Place";
+import TrendingDownIcon from "@mui/icons-material/TrendingDown";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import {
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Filler,
+  Tooltip as ChartTooltip
+} from "chart.js";
+import { Line } from "react-chartjs-2";
 
-const farmCoordinates = [
-  [23.27, 69.72],
-  [23.28, 69.72],
-  [23.28, 69.74],
-  [23.27, 69.74],
-];
+ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Filler, ChartTooltip);
 
-export default function WaterMap() {
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
+const API_BASE = "http://127.0.0.1:8000/api";
+const ACCENT = "#0C447C";
+
+function MapClickTester() {
+  useMapEvents({
+    click(e) {
+      console.log("Map clicked:", e.latlng);
+    },
+  });
+  return null;
+}
+
+// ──────────────────────────────────────────────
+// Small metric tile — used in the 2x2 grid
+// ──────────────────────────────────────────────
+function MetricTile({ label, value, loading, valueColor, dot }) {
   return (
-    <MapContainer
-      center={[23.25, 69.68]}
-      zoom={9}
-      style={{
-        height: "500px",
-        width: "100%",
-        borderRadius: "8px",
-      }}
-    >
-      <TileLayer
-        attribution="&copy; OpenStreetMap contributors"
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+    <Box sx={{ bgcolor: "action.hover", borderRadius: 1.5, px: 1.5, py: 1 }}>
+      <Typography sx={{ fontSize: 11, color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.04em", mb: 0.4 }}>
+        {label}
+      </Typography>
+      {loading ? (
+        <Skeleton width={60} height={18} />
+      ) : (
+        <Typography sx={{ fontSize: 13, fontWeight: 500, color: valueColor || "text.primary", display: "flex", alignItems: "center", gap: 0.5 }}>
+          {dot && <Box component="span" sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: valueColor }} />}
+          {value}
+        </Typography>
+      )}
+    </Box>
+  );
+}
 
-      {/* Wells */}
-      {wells.map((well) => (
-        <Marker key={well.id} position={well.position}>
-          <Popup>
-            <strong>{well.name}</strong>
-            <br />
-            Water Level: {well.waterLevel} m
-          </Popup>
-        </Marker>
-      ))}
+// ──────────────────────────────────────────────
+// Property panel
+// ──────────────────────────────────────────────
+function WellPropertyPanel({ wellId, onClose }) {
+  const [period, setPeriod] = useState("monthly");
+  const [detail, setDetail] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-      {/* Pond */}
-      <Polygon
-        positions={pondCoordinates}
-        pathOptions={{
-          color: "blue",
-          fillColor: "lightblue",
-          fillOpacity: 0.6,
+  useEffect(() => {
+    if (!wellId) return;
+    let mounted = true;
+    setLoading(true);
+    setError(null);
+    setDetail(null);
+
+    fetch(`${API_BASE}/wells/${wellId}/`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load well details");
+        return res.json();
+      })
+      .then((data) => {
+        if (mounted) {
+          setDetail(data);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setError("Couldn't load well details. Try again.");
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [wellId]);
+
+  if (!wellId) return null;
+
+  const history = detail?.waterLevelHistory?.[period] ?? [];
+  const hasHistory = history.length > 0;
+
+  const trend = hasHistory
+    ? +(history[history.length - 1].level - history[0].level).toFixed(2)
+    : null;
+
+  const chartData = {
+    labels: history.map((h) => h.period),
+    datasets: [
+      {
+        data: history.map((h) => h.level),
+        borderColor: ACCENT,
+        backgroundColor: "rgba(12,68,124,0.06)",
+        fill: true,
+        tension: 0.35,
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHoverBackgroundColor: ACCENT,
+      }
+    ]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: "#1B2A4A",
+        padding: 8,
+        cornerRadius: 6,
+        titleFont: { size: 11 },
+        bodyFont: { size: 12 },
+        callbacks: { label: (ctx) => `${ctx.parsed.y.toFixed(2)} m` }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { size: 10 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 }
+      },
+      y: {
+        grid: { color: "rgba(0,0,0,0.06)" },
+        ticks: { font: { size: 10 }, callback: (v) => `${Number(v).toFixed(1)}m` }
+      }
+    }
+  };
+
+  return (
+    <Fade in>
+      <Paper
+        elevation={6}
+        sx={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          width: { xs: "calc(100% - 32px)", sm: 360 },
+          maxHeight: "calc(100% - 32px)",
+          overflowY: "auto",
+          zIndex: 1000,
+          borderRadius: 3,
+          overflow: "hidden"
         }}
       >
-        <Popup>
-          <strong>Pond</strong>
-          <br />
-          Sample Water Body
-        </Popup>
-      </Polygon>
+        {/* Header */}
+        <Box sx={{
+          px: 2.25, py: 1.75,
+          borderBottom: "0.5px solid",
+          borderColor: "divider",
+          display: "flex", alignItems: "flex-start", justifyContent: "space-between"
+        }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+            <Box sx={{
+              width: 36, height: 36, borderRadius: 1.5,
+              bgcolor: "info.light",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0
+            }}>
+              <PlaceIcon sx={{ fontSize: 18, color: "info.dark" }} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontSize: 15, fontWeight: 500 }}>
+                {loading ? <Skeleton width={80} /> : detail?.well?.well_name}
+              </Typography>
+              <Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
+                {loading ? <Skeleton width={70} /> : detail?.well?.village}
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton size="small" onClick={onClose} aria-label="Close well details" sx={{ mt: -0.5, mr: -0.5 }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
 
-      {/* Farm */}
-      <Polygon
-        positions={farmCoordinates}
-        pathOptions={{
-          color: "green",
-          fillColor: "green",
-          fillOpacity: 0.4,
-        }}
+        {error && (
+          <Typography color="error" variant="body2" sx={{ px: 2.25, py: 2 }}>
+            {error}
+          </Typography>
+        )}
+
+        {/* Metric grid */}
+        <Box sx={{ p: 2.25, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.25 }}>
+          <MetricTile
+            label="Coordinates"
+            loading={loading}
+            value={
+              !loading && detail
+                ? `${detail.well.latitude.toFixed(3)}, ${detail.well.longitude.toFixed(3)}`
+                : null
+            }
+          />
+          <MetricTile
+            label="Well depth"
+            loading={loading}
+            value={!loading && detail ? `${detail.well.depth_m} m` : null}
+          />
+          <MetricTile
+            label="Water level"
+            loading={loading}
+            value={
+              !loading && detail
+                ? (detail.well.water_level_m !== null ? `${detail.well.water_level_m} m` : "No data")
+                : null
+            }
+          />
+          <MetricTile
+            label="Status"
+            loading={loading}
+            dot
+            valueColor={detail?.well?.status === "active" ? "success.main" : "text.disabled"}
+            value={!loading && detail ? (detail.well.status === "active" ? "Active" : "Inactive") : null}
+          />
+        </Box>
+
+        {/* Trend section */}
+        <Box sx={{ px: 2.25, pb: 2.25 }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+            <Typography sx={{ fontSize: 13, fontWeight: 500 }}>
+              Water level trend
+            </Typography>
+            {hasHistory && trend !== null && (
+              <Typography sx={{
+                fontSize: 11, fontWeight: 500,
+                color: trend <= 0 ? "error.main" : "success.main",
+                display: "flex", alignItems: "center", gap: 0.4
+              }}>
+                {trend <= 0 ? <TrendingDownIcon sx={{ fontSize: 13 }} /> : <TrendingUpIcon sx={{ fontSize: 13 }} />}
+                {Math.abs(trend)} m over period
+              </Typography>
+            )}
+          </Box>
+
+          {/* Period toggle */}
+          <Box sx={{ display: "flex", gap: 0.5, bgcolor: "action.hover", borderRadius: 1.5, p: 0.4, mb: 1.5 }}>
+            {["monthly", "quarterly", "yearly"].map((p) => (
+              <Box
+                key={p}
+                onClick={() => setPeriod(p)}
+                sx={{
+                  flex: 1, textAlign: "center", py: 0.6, borderRadius: 1,
+                  fontSize: 12.5, cursor: "pointer", textTransform: "capitalize",
+                  fontWeight: period === p ? 500 : 400,
+                  bgcolor: period === p ? "background.paper" : "transparent",
+                  color: period === p ? "text.primary" : "text.secondary",
+                  boxShadow: period === p ? 1 : "none",
+                  transition: "all 0.15s"
+                }}
+              >
+                {p}
+              </Box>
+            ))}
+          </Box>
+
+          {/* Chart */}
+          <Box sx={{ width: "100%", height: 160, position: "relative" }}>
+            {loading ? (
+              <Skeleton variant="rounded" width="100%" height="100%" />
+            ) : !hasHistory ? (
+              <Box sx={{
+                height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
+                color: "text.secondary", fontSize: 13
+              }}>
+                No history available for this period.
+              </Box>
+            ) : (
+              <Line data={chartData} options={chartOptions} />
+            )}
+          </Box>
+        </Box>
+      </Paper>
+    </Fade>
+  );
+}
+
+// ──────────────────────────────────────────────
+// Main map
+// ──────────────────────────────────────────────
+export default function WaterMap() {
+  const [wells, setWells] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedWellId, setSelectedWellId] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/wells/`)
+      .then((res) => res.json())
+      .then((data) => {
+        setWells(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
+  return (
+    <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
+      <MapContainer
+        center={[22.83, 69.72]}
+        zoom={11}
+        style={{ height: "500px", width: "100%", borderRadius: "10px" }}
       >
-        <Popup>
-          <strong>Farm Plot</strong>
-          <br />
-          Sample Agricultural Area
-        </Popup>
-      </Polygon>
-    </MapContainer>
+        <MapClickTester />
+        <TileLayer
+          attribution="&copy; OpenStreetMap contributors"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {!loading &&
+          wells.map((well) => (
+            <Marker
+              key={well.id}
+              position={[well.latitude, well.longitude]}
+              eventHandlers={{ click: () => setSelectedWellId(well.id) }}
+            />
+          ))}
+      </MapContainer>
+
+      <WellPropertyPanel wellId={selectedWellId} onClose={() => setSelectedWellId(null)} />
+    </Box>
   );
 }

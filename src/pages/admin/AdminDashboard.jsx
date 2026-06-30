@@ -10,7 +10,8 @@ import {
   useTheme,
   useMediaQuery
 } from "@mui/material";
-
+import Button from "@mui/material/Button";
+import MapIcon from "@mui/icons-material/Map";
 import DashboardCards from "../../components/admin/DashboardCards";
 import RecentActivityTable from "../../components/admin/RecentActivityTable";
 
@@ -252,6 +253,18 @@ export default function AdminDashboard() {
       height: 500
     }}
   >
+    <Button
+  variant="contained"
+  startIcon={<MapIcon />}
+  sx={{ mb: 2 }}
+  onClick={async () => {
+    await fetch("http://127.0.0.1:8000/api/open-qgis/", {
+      method: "POST",
+    });
+  }}
+>
+  Open GIS Workspace
+</Button>
     <WaterMap />
   </Box>
 </Card>

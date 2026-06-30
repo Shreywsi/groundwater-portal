@@ -1,18 +1,11 @@
-from rest_framework.routers import DefaultRouter
-from .views import (
-    PumpingViewSet,
-    WaterLevelViewSet,
-    WaterTableViewSet,
-    TDSViewSet,
-    SalinityViewSet
-)
+from django.urls import path
+from .views import dashboard, open_qgis, wells, waterlevel, pumping, well_detail
 
-router = DefaultRouter()
-
-router.register(r'pumping', PumpingViewSet)
-router.register(r'waterlevel', WaterLevelViewSet)
-router.register(r'watertable', WaterTableViewSet)
-router.register(r'tds', TDSViewSet)
-router.register(r'salinity', SalinityViewSet)
-
-urlpatterns = router.urls
+urlpatterns = [
+    path("dashboard/", dashboard),
+    path("wells/", wells),
+    path("wells/<int:well_id>/", well_detail),
+    path("waterlevel/", waterlevel),
+    path("pumping/", pumping),
+    path("open-qgis/", open_qgis),
+]
