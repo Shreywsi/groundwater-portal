@@ -322,7 +322,7 @@ function WellPropertyPanel({ wellId, onClose }) {
 // ──────────────────────────────────────────────
 // Main map
 // ──────────────────────────────────────────────
-export default function WaterMap() {
+export default function WaterMap({ refreshKey }) {
   const [wells, setWells] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedWellId, setSelectedWellId] = useState(null);
@@ -338,7 +338,7 @@ export default function WaterMap() {
         console.error(err);
         setLoading(false);
       });
-  }, []);
+  }, [refreshKey]);
 
   return (
     <Box sx={{ position: "relative", width: "100%", height: "100%" }}>

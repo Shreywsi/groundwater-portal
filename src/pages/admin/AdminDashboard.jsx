@@ -56,6 +56,7 @@ export default function AdminDashboard() {
   const [tdsData, setTdsData] = useState([]);
   const [salinityData, setSalinityData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mapRefreshKey, setMapRefreshKey] = useState(0);
 
   useEffect(() => {
     let mounted = true;
@@ -90,12 +91,15 @@ export default function AdminDashboard() {
   // reading via AddWaterLevelForm, so the dashboard charts update
   // without requiring a full page reload.
   const refreshWaterData = () => {
+    setMapRefreshKey((k) => k + 1);
     Promise.all([
       fetchWaterLevelChart(),
-      fetchPieChart()
-    ]).then(([waterLevel, pie]) => {
+      fetchPieChart(),
+      fetchDashboardSummary()
+    ]).then(([waterLevel, pie, s]) => {
       setWaterLevelData(waterLevel);
       setPieData(pie);
+      setSummary(s);
     });
   };
 
@@ -278,7 +282,7 @@ export default function AdminDashboard() {
 >
   Open GIS Workspace
 </Button>
-    <WaterMap />
+    <WaterMap refreshKey={mapRefreshKey} />
   </Box>
 </Card>
 
