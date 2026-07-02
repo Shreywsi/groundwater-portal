@@ -1,31 +1,31 @@
-well_name,village,latitude,longitude,depth_m,status
-MW-001,Mundra,22.846991,69.721252,48.6,active
-MW-002,Mundra,22.844228,69.713401,69,active
-MW-003,Mundra,22.829462,69.717706,54.7,active
-MW-004,Mundra,22.840495,69.716811,60.2,active
-MW-005,Baroi,22.810271,69.703196,49.6,active
-MW-006,Baroi,22.801351,69.701181,42.7,active
-MW-007,Baroi,22.815775,69.693119,51.4,active
-MW-008,Bhadreshwar,22.818105,69.75951,60.3,active
-MW-009,Bhadreshwar,22.825108,69.755891,54.8,active
-MW-010,Bhadreshwar,22.832502,69.75927,49.9,active
-MW-011,Tunda,22.886503,69.733914,68.6,active
-MW-012,Tunda,22.871224,69.73861,58.1,active
-MW-013,Tunda,22.880677,69.749167,50.9,active
-MW-014,Nana Kapaya,22.8542,69.685374,35.4,active
-MW-015,Nana Kapaya,22.853471,69.690177,61.6,active
-MW-016,Nana Kapaya,22.859469,69.688297,53,active
-MW-017,Mota Kapaya,22.846577,69.678349,58.3,active
-MW-018,Mota Kapaya,22.845987,69.670394,59.4,active
-MW-019,Mota Kapaya,22.839286,69.674844,44.2,active
-MW-020,Ratadiya,22.788091,69.738191,56.4,active
-MW-021,Ratadiya,22.79555,69.736192,40.1,active
-MW-022,Ratadiya,22.790055,69.723791,68.9,active
-MW-023,Tragadi,22.868143,69.768003,53.5,active
-MW-024,Tragadi,22.876964,69.762934,65.6,active
-MW-025,Tragadi,22.878015,69.772755,69,active
-MW-026,Zarpara,22.826919,69.783996,56.6,active
-MW-027,Zarpara,22.823008,69.795192,36.5,active
-MW-028,Zarpara,22.818825,69.780013,56.7,active
-MW-029,Kandagara,22.809019,69.750722,43.5,active
-MW-030,Kandagara,22.799161,69.751448,58.5,active
+well_name,village,latitude,longitude,depth_m,status,lulc
+MW-001,Mundra,22.846991,69.721252,48.6,active,Built-up/Industrial
+MW-002,Mundra,22.844228,69.713401,69,active,Built-up/Industrial
+MW-003,Mundra,22.829462,69.717706,54.7,active,Agricultural Land
+MW-004,Mundra,22.840495,69.716811,60.2,active,Built-up/Industrial
+MW-005,Baroi,22.810271,69.703196,49.6,active,Agricultural Land
+MW-006,Baroi,22.801351,69.701181,42.7,active,Agricultural Land
+MW-007,Baroi,22.815775,69.693119,51.4,active,Scrubland
+MW-008,Bhadreshwar,22.818105,69.75951,60.3,active,Barren/Saline Land
+MW-009,Bhadreshwar,22.825108,69.755891,54.8,active,Barren/Saline Land
+MW-010,Bhadreshwar,22.832502,69.75927,49.9,active,Agricultural Land
+MW-011,Tunda,22.886503,69.733914,68.6,active,Mangrove/Wetland
+MW-012,Tunda,22.871224,69.73861,58.1,active,Agricultural Land
+MW-013,Tunda,22.880677,69.749167,50.9,active,Mangrove/Wetland
+MW-014,Nana Kapaya,22.8542,69.685374,35.4,active,Agricultural Land
+MW-015,Nana Kapaya,22.853471,69.690177,61.6,active,Agricultural Land
+MW-016,Nana Kapaya,22.859469,69.688297,53,active,Scrubland
+MW-017,Mota Kapaya,22.846577,69.678349,58.3,active,Agricultural Land
+MW-018,Mota Kapaya,22.845987,69.670394,59.4,active,Agricultural Land
+MW-019,Mota Kapaya,22.839286,69.674844,44.2,active,Scrubland
+MW-020,Ratadiya,22.788091,69.738191,56.4,active,Barren/Saline Land
+MW-021,Ratadiya,22.79555,69.736192,40.1,active,Agricultural Land
+MW-022,Ratadiya,22.790055,69.723791,68.9,active,Barren/Saline Land
+MW-023,Tragadi,22.868143,69.768003,53.5,active,Mangrove/Wetland
+MW-024,Tragadi,22.876964,69.762934,65.6,active,Mangrove/Wetland
+MW-025,Tragadi,22.878015,69.772755,69,active,Barren/Saline Land
+MW-026,Zarpara,22.826919,69.783996,56.6,active,Agricultural Land
+MW-027,Zarpara,22.823008,69.795192,36.5,active,Scrubland
+MW-028,Zarpara,22.818825,69.780013,56.7,active,Agricultural Land
+MW-029,Kandagara,22.809019,69.750722,43.5,active,Agricultural Land
+MW-030,Kandagara,22.799161,69.751448,58.5,active,Scrubland

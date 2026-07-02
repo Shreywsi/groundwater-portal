@@ -5,8 +5,17 @@ from .views import (
     wells,
     waterlevel,
     pumping,
+    watertable,
+    tds,
+    salinity,
     well_detail,
     add_water_level,
+    add_pumping,
+    add_rainfall,
+    add_weather,
+    add_watertable,
+    add_tds,
+    add_salinity,
 )
 
 urlpatterns = [
@@ -15,6 +24,15 @@ urlpatterns = [
     path("wells/<int:well_id>/", well_detail),
     path("waterlevel/", waterlevel),
     path("pumping/", pumping),
+    path("watertable/", watertable),
+    path("tds/", tds),
+    path("salinity/", salinity),
     path("open-qgis/", open_qgis),
     path("water-level/add/", add_water_level),
+    path("pumping/add/", add_pumping),
+    path("rainfall/add/", add_rainfall),
+    path("weather/add/", add_weather),
+    path("watertable/add/", add_watertable),
+    path("tds/add/", add_tds),
+    path("salinity/add/", add_salinity),
 ]

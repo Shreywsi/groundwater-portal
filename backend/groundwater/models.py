@@ -20,23 +20,14 @@ class WaterLevel(models.Model):
 
 class WaterTable(models.Model):
     depth = models.FloatField()
-    date = models.DateField(auto_now_add=True)
-
-    def __str__(self):
-        return str(self.depth)
+    date = models.DateField()
 
 
 class TDS(models.Model):
     value = models.FloatField()
-    date = models.DateField(auto_now_add=True)
-
-    def __str__(self):
-        return str(self.value)
+    date = models.DateField()
 
 
 class Salinity(models.Model):
     value = models.FloatField()
-    date = models.DateField(auto_now_add=True)
-
-    def __str__(self):
-        return str(self.value)
+    date = models.DateField()

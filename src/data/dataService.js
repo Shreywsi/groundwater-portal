@@ -136,7 +136,7 @@ export async function fetchRecentActivity() {
   // newest first
   activity.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  return activity;
+  return activity.slice(0, 10);
 }
 
 

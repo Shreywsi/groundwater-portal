@@ -264,24 +264,26 @@ export default function AdminDashboard() {
     Water Resources Map
   </Typography>
 
+  <Button
+    variant="contained"
+    startIcon={<MapIcon />}
+    sx={{ mb: 2 }}
+    onClick={async () => {
+      await fetch("http://127.0.0.1:8000/api/open-qgis/", {
+        method: "POST",
+      });
+    }}
+  >
+    Open GIS Workspace
+  </Button>
+
   <Box
     sx={{
       width: "100%",
-      height: 500
+      height: 500,
+      position: "relative"
     }}
   >
-    <Button
-  variant="contained"
-  startIcon={<MapIcon />}
-  sx={{ mb: 2 }}
-  onClick={async () => {
-    await fetch("http://127.0.0.1:8000/api/open-qgis/", {
-      method: "POST",
-    });
-  }}
->
-  Open GIS Workspace
-</Button>
     <WaterMap refreshKey={mapRefreshKey} />
   </Box>
 </Card>

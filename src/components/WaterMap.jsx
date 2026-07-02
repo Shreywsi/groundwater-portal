@@ -125,6 +125,8 @@ function WellPropertyPanel({ wellId, onClose }) {
 
   const history = detail?.waterLevelHistory?.[period] ?? [];
   const hasHistory = history.length > 0;
+  const lulcClass = detail?.lulc?.class ?? "Unknown";
+  const lulcArea = detail?.lulc?.areaHectares;
 
   const trend = hasHistory
     ? +(history[history.length - 1].level - history[0].level).toFixed(2)
@@ -182,11 +184,10 @@ function WellPropertyPanel({ wellId, onClose }) {
           top: 16,
           right: 16,
           width: { xs: "calc(100% - 32px)", sm: 360 },
-          maxHeight: "calc(100% - 32px)",
+          maxHeight: { xs: "calc(100vh - 120px)", sm: "calc(100% - 32px)" },
           overflowY: "auto",
           zIndex: 1000,
-          borderRadius: 3,
-          overflow: "hidden"
+          borderRadius: 3
         }}
       >
         {/* Header */}
@@ -227,6 +228,11 @@ function WellPropertyPanel({ wellId, onClose }) {
 
         {/* Metric grid */}
         <Box sx={{ p: 2.25, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.25 }}>
+          <MetricTile
+            label="LULC"
+            loading={loading}
+            value={!loading && detail ? (lulcArea ? `${lulcClass} • ${lulcArea} ha` : lulcClass) : null}
+          />
           <MetricTile
             label="Coordinates"
             loading={loading}
@@ -299,7 +305,7 @@ function WellPropertyPanel({ wellId, onClose }) {
           </Box>
 
           {/* Chart */}
-          <Box sx={{ width: "100%", height: 160, position: "relative" }}>
+          <Box sx={{ width: "100%", height: 140, position: "relative", pb: 1 }}>
             {loading ? (
               <Skeleton variant="rounded" width="100%" height="100%" />
             ) : !hasHistory ? (

@@ -21,6 +21,7 @@ SELECT DISTINCT ON (g.well_id)
 
     g.time,
     g.water_level_m,
+    w.status,
 
     w.geom
 
