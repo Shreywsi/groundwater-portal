@@ -48,7 +48,21 @@ L.Icon.Default.mergeOptions({
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
 });
-
+const wellDotIcon = L.divIcon({
+  className: "",
+  html: `
+    <div style="
+      width:8px;
+      height:8px;
+      background:#0C447C;
+      border:2px solid white;
+      border-radius:50%;
+      box-shadow:0 0 3px rgba(0,0,0,0.35);
+    "></div>
+  `,
+  iconSize: [8, 8],
+  iconAnchor: [4, 4],
+});
 const API_BASE = "http://127.0.0.1:8000/api";
 const ACCENT = "#0C447C";
 
@@ -129,8 +143,15 @@ function WellPropertyPanel({ wellId, onClose }) {
   const lulcArea = detail?.lulc?.areaHectares;
 
   const trend = hasHistory
-    ? +(history[history.length - 1].level - history[0].level).toFixed(2)
-    : null;
+  ? +(history[history.length - 1].level - history[0].level).toFixed(2)
+  : null;
+
+const trendLabel =
+  trend > 0
+    ? `+${trend.toFixed(2)} m`
+    : trend < 0
+    ? `${trend.toFixed(2)} m`
+    : "0.00 m";
 
   const chartData = {
     labels: history.map((h) => h.period),
@@ -272,14 +293,28 @@ function WellPropertyPanel({ wellId, onClose }) {
               Water level trend
             </Typography>
             {hasHistory && trend !== null && (
-              <Typography sx={{
-                fontSize: 11, fontWeight: 500,
-                color: trend <= 0 ? "error.main" : "success.main",
-                display: "flex", alignItems: "center", gap: 0.4
-              }}>
-                {trend <= 0 ? <TrendingDownIcon sx={{ fontSize: 13 }} /> : <TrendingUpIcon sx={{ fontSize: 13 }} />}
-                {Math.abs(trend)} m over period
-              </Typography>
+              <Typography
+  sx={{
+    fontSize: 12,
+    fontWeight: 600,
+    color:
+      trend > 0
+        ? "success.main"
+        : trend < 0
+        ? "error.main"
+        : "text.secondary",
+    display: "flex",
+    alignItems: "center",
+    gap: 0.5,
+  }}
+>
+  {trend > 0 && <TrendingUpIcon sx={{ fontSize: 15 }} />}
+  {trend < 0 && <TrendingDownIcon sx={{ fontSize: 15 }} />}
+
+  {trend > 0 && `Increased +${trend.toFixed(2)} m`}
+  {trend < 0 && `Decreased ${trend.toFixed(2)} m`}
+  {trend === 0 && "No change (0.00 m)"}
+</Typography>
             )}
           </Box>
 
@@ -361,10 +396,13 @@ export default function WaterMap({ refreshKey }) {
         {!loading &&
           wells.map((well) => (
             <Marker
-              key={well.id}
-              position={[well.latitude, well.longitude]}
-              eventHandlers={{ click: () => setSelectedWellId(well.id) }}
-            />
+  key={well.id}
+  position={[well.latitude, well.longitude]}
+  icon={wellDotIcon}
+  eventHandlers={{
+    click: () => setSelectedWellId(well.id),
+  }}
+/>
           ))}
       </MapContainer>
 

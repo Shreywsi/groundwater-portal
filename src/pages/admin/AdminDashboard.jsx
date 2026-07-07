@@ -20,7 +20,10 @@ import RecordPieChart from "../../components/charts/RecordPieChart";
 import WaterLevelChart from "../../components/charts/WaterLevelChart";
 import TDSChart from "../../components/charts/TDSChart";
 import SalinityChart from "../../components/charts/SalinityChart";
+
 import AddWaterLevelForm from "../../components/admin/AddWaterLevelForm";
+import AddWellDepthForm from "../../components/admin/AddWellDepthForm";
+
 import WaterMap from "../../components/WaterMap";
 
 import {
@@ -252,6 +255,7 @@ export default function AdminDashboard() {
           </Grid>
 
         </Grid>
+        
         {/* GIS Map */}
 <Card
   elevation={3}
@@ -288,8 +292,13 @@ export default function AdminDashboard() {
   </Box>
 </Card>
 
-<AddWaterLevelForm onDataAdded={refreshWaterData} />
+<>
+  <AddWaterLevelForm onDataAdded={refreshWaterData} />
 
+  <Box mt={3}>
+    <AddWellDepthForm onDataAdded={refreshWaterData} />
+  </Box>
+</>
         {/* Recent Activity */}
         <Box sx={{ overflowX: "auto" }}>
           <RecentActivityTable activity={activity} />
