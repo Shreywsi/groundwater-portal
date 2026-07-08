@@ -70,7 +70,8 @@ def wells(request):
                 latitude,
                 longitude,
                 depth_m,
-                water_level_m
+                water_level_m,
+                status
             FROM groundwater_map
             ORDER BY id;
         """)
@@ -84,6 +85,27 @@ def wells(request):
 
     return Response(rows)
 
+@api_view(["GET"])
+def village_clusters_geojson(request):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT json_build_object(
+                'type', 'FeatureCollection',
+                'features', json_agg(
+                    ST_AsGeoJSON(t.*)::json
+                )
+            )
+            FROM (
+                SELECT
+                    ogc_fid,
+                    wkb_geometry
+                FROM village_clusters
+            ) AS t;
+        """)
+
+        geojson = cursor.fetchone()[0]
+
+    return Response(geojson)
 
 @api_view(["GET"])
 def waterlevel(request):
@@ -168,7 +190,8 @@ def well_detail(request, well_id):
                     latitude,
                     longitude,
                     depth_m,
-                    water_level_m
+                    water_level_m,
+                    status
                 FROM groundwater_map
                 WHERE id = %s;
             """, [well_id])

@@ -16,6 +16,7 @@ from .views import (
     add_watertable,
     add_tds,
     add_salinity,
+    village_clusters_geojson,
 )
 
 urlpatterns = [
@@ -35,4 +36,5 @@ urlpatterns = [
     path("watertable/add/", add_watertable),
     path("tds/add/", add_tds),
     path("salinity/add/", add_salinity),
+    path("village-clusters/", village_clusters_geojson),
 ]

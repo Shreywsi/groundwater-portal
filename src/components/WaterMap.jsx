@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
-
+import { GeoJSON } from "react-leaflet";
+//import { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -365,21 +366,26 @@ const trendLabel =
 // ──────────────────────────────────────────────
 export default function WaterMap({ refreshKey }) {
   const [wells, setWells] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedWellId, setSelectedWellId] = useState(null);
-
+const [clusters, setClusters] = useState(null);
+const [loading, setLoading] = useState(true);
+const [selectedWellId, setSelectedWellId] = useState(null);
   useEffect(() => {
-    fetch(`${API_BASE}/wells/`)
-      .then((res) => res.json())
-      .then((data) => {
-        setWells(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, [refreshKey]);
+  setLoading(true);
+
+  Promise.all([
+    fetch(`${API_BASE}/wells/`).then((r) => r.json()),
+    fetch(`${API_BASE}/village-clusters/`).then((r) => r.json()),
+  ])
+    .then(([wellData, clusterData]) => {
+      setWells(wellData);
+      setClusters(clusterData);
+      setLoading(false);
+    })
+    .catch((err) => {
+      console.error(err);
+      setLoading(false);
+    });
+}, [refreshKey]);
 
   return (
     <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
@@ -393,6 +399,39 @@ export default function WaterMap({ refreshKey }) {
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        {clusters && (
+  <GeoJSON
+    data={clusters}
+    style={{
+      color: "#1565C0",
+      weight: 2,
+      fillColor: "#42A5F5",
+      fillOpacity: 0.25,
+    }}
+    onEachFeature={(feature, layer) => {
+      layer.bindPopup(
+        `<b>Village Cluster</b><br>ID: ${
+          feature.properties?.ogc_fid ?? "Unknown"
+        }`
+      );
+
+      layer.on({
+        mouseover: (e) => {
+          e.target.setStyle({
+            weight: 3,
+            fillOpacity: 0.5,
+          });
+        },
+        mouseout: (e) => {
+          e.target.setStyle({
+            weight: 2,
+            fillOpacity: 0.25,
+          });
+        },
+      });
+    }}
+  />
+)}
         {!loading &&
           wells.map((well) => (
             <Marker

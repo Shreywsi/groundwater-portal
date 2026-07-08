@@ -14,6 +14,7 @@ import Button from "@mui/material/Button";
 import MapIcon from "@mui/icons-material/Map";
 import DashboardCards from "../../components/admin/DashboardCards";
 import RecentActivityTable from "../../components/admin/RecentActivityTable";
+import WaterBalanceCard from "../../components/WaterBalanceCard.jsx";
 
 import PumpingChart from "../../components/charts/PumpingChart";
 import RecordPieChart from "../../components/charts/RecordPieChart";
@@ -255,7 +256,14 @@ export default function AdminDashboard() {
           </Grid>
 
         </Grid>
-        
+        <WaterBalanceCard
+  initialValues={{ Rr: 120, Re: 30, Ri: 15, I: 5, Si: 8, Se: 10, O: 12, Et: 60, Dp: 55 }}
+  unit="MCM"
+  onChange={(values, deltaS) => {
+    // e.g. save to backend
+    // saveWaterBalance(values, deltaS);
+  }}
+/>
         {/* GIS Map */}
 <Card
   elevation={3}
