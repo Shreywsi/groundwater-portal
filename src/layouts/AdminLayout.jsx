@@ -1,5 +1,7 @@
 import { Box } from "@mui/material";
+
 import Sidebar from "../components/Sidebar";
+import Topbar from "../components/Topbar";
 
 export default function AdminLayout({ children }) {
   return (
@@ -7,20 +9,34 @@ export default function AdminLayout({ children }) {
       sx={{
         display: "flex",
         minHeight: "100vh",
-        backgroundColor: "#f4f6f8",
+        bgcolor: "#F5F7FB",
       }}
     >
+      {/* Left Navigation */}
       <Sidebar />
 
+      {/* Right Side */}
       <Box
-        component="main"
         sx={{
-          flexGrow: 1,
-          p: 4,
-          overflowX: "hidden",
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
         }}
       >
-        {children}
+        {/* Top Navigation */}
+        <Topbar />
+
+        {/* Page Content */}
+        <Box
+          sx={{
+            flex: 1,
+            overflow: "auto",
+            p: 4,
+          }}
+        >
+          {children}
+        </Box>
       </Box>
     </Box>
   );
