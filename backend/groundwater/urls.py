@@ -17,6 +17,7 @@ from .views import (
     add_tds,
     add_salinity,
     village_clusters_geojson,
+    upload_gis_file,
 )
 
 urlpatterns = [
@@ -37,4 +38,5 @@ urlpatterns = [
     path("tds/add/", add_tds),
     path("salinity/add/", add_salinity),
     path("village-clusters/", village_clusters_geojson),
+    path("gis/upload/", upload_gis_file),
 ]

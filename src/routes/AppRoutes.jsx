@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import LoginPage from "../pages/LoginPage";
 import AdminDashboard from "../pages/admin/AdminDashboard";
-
+import GISDataManager from "../pages/admin/GISDataManager";
 import FarmerDashboard from "../pages/farmer/FarmerDashboard";
 import PumpingEntry from "../pages/crp/PumpingEntry";
 import WaterTableEntry from "../pages/crp/WaterTableEntry";
@@ -14,6 +14,7 @@ import CRPDashboard from "../pages/crp/CRPDashboard";
 import ResearcherDashboard from "../pages/researcher/ResearcherDashboard";
 
 import AdminLayout from "../layouts/AdminLayout";
+import MyWorkspace from "../pages/admin/MyWorkspace";
 
 function AppRoutes() {
   return (
@@ -21,15 +22,23 @@ function AppRoutes() {
       <Routes>
 
         <Route path="/" element={<LoginPage />} />
-
-        <Route
-  path="/admin"
-  element={
-    <AdminLayout>
-      <AdminDashboard />
-    </AdminLayout>
-  }
-/>
+      <Route
+        path="/admin"
+        element={
+          <AdminLayout>
+            <AdminDashboard />
+          </AdminLayout>
+        }
+      />
+<Route path="/admin/workspace" element={<MyWorkspace />} />
+      <Route
+        path="/admin/gis"
+        element={
+          <AdminLayout>
+            <GISDataManager />
+          </AdminLayout>
+        }
+      />
 
         <Route path="/farmer" element={<FarmerDashboard />} />
         <Route path="/farmer/water-table" element={<WaterTableEntry />} />

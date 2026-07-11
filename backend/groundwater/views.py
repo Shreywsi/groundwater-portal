@@ -1,7 +1,10 @@
+import os
+from django.conf import settings
 from django.db import connection
-
+import zipfile
+from pathlib import Path
 from rest_framework.response import Response
-
+import subprocess
 from rest_framework.decorators import api_view
 
 import subprocess
@@ -665,3 +668,126 @@ def add_salinity(request):
 
     entry = Salinity.objects.create(date=date, value=value)
     return Response({"success": True, "id": entry.id, "date": date, "value": value}, status=201)
+
+@csrf_exempt
+@api_view(["POST"])
+def upload_gis_file(request):
+
+    uploaded_file = request.FILES.get("file")
+
+    if not uploaded_file:
+        return Response(
+            {"error": "No file uploaded."},
+            status=400
+        )
+
+    # -------------------------
+    # Save uploaded ZIP
+    # -------------------------
+    upload_dir = os.path.join(settings.BASE_DIR, "uploads", "gis")
+    os.makedirs(upload_dir, exist_ok=True)
+
+    file_path = os.path.join(upload_dir, uploaded_file.name)
+
+    with open(file_path, "wb+") as destination:
+        for chunk in uploaded_file.chunks():
+            destination.write(chunk)
+
+    shp_file = None
+    extracted_files = []
+
+    # -------------------------
+    # Extract ZIP
+    # -------------------------
+    if uploaded_file.name.lower().endswith(".zip"):
+
+        extract_dir = os.path.join(
+            settings.BASE_DIR,
+            "uploads",
+            "temp",
+            Path(uploaded_file.name).stem,
+        )
+
+        os.makedirs(extract_dir, exist_ok=True)
+
+        with zipfile.ZipFile(file_path, "r") as zip_ref:
+            zip_ref.extractall(extract_dir)
+
+        # Search for .shp
+        for root, dirs, files in os.walk(extract_dir):
+
+            for file in files:
+
+                extracted_files.append(file)
+
+                if file.startswith("._"):
+                    continue
+
+                if "__MACOSX" in root:
+                    continue
+
+                if file.lower().endswith(".shp"):
+                    shp_file = os.path.join(root, file)
+                    break
+
+            if shp_file:
+                break
+
+        if shp_file is None:
+            return Response(
+                {"error": "No .shp file found."},
+                status=400
+            )
+
+        # -------------------------
+        # Generate PostGIS table name
+        # -------------------------
+        table_name = (
+            Path(uploaded_file.name)
+            .stem
+            .lower()
+            .replace(" ", "_")
+            .replace("-", "_")
+        )
+
+        # -------------------------
+        # Import into PostGIS
+        # -------------------------
+        cmd = [
+            "ogr2ogr",
+            "-f", "PostgreSQL",
+            "PG:host=localhost port=5432 dbname=water_db user=shreyasisoumya",
+            shp_file,
+            "-nln", table_name,
+            "-overwrite",
+        ]
+
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode != 0:
+            return Response(
+                {
+                    "success": False,
+                    "error": result.stderr,
+                },
+                status=500,
+            )
+
+    else:
+        table_name = None
+
+    # -------------------------
+    # Success
+    # -------------------------
+    return Response({
+        "success": True,
+        "filename": uploaded_file.name,
+        "table_name": table_name,
+        "saved_to": file_path,
+        "shp_file": shp_file,
+        "extracted_files": extracted_files,
+    })

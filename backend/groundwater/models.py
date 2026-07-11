@@ -31,3 +31,14 @@ class TDS(models.Model):
 class Salinity(models.Model):
     value = models.FloatField()
     date = models.DateField()
+
+class GISLayer(models.Model):
+    name = models.CharField(max_length=100)
+    table_name = models.CharField(max_length=100, unique=True)
+    original_file = models.CharField(max_length=255)
+    geometry_type = models.CharField(max_length=50, blank=True)
+    is_visible = models.BooleanField(default=True)
+    imported_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
