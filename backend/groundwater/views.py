@@ -768,11 +768,20 @@ def upload_gis_file(request):
             text=True,
         )
 
+        print("========== OGR2OGR ==========")
+        print("Return code:", result.returncode)
+        print("STDOUT:")
+        print(result.stdout)
+        print("STDERR:")
+        print(result.stderr)
+        print("=============================")
+
         if result.returncode != 0:
             return Response(
                 {
                     "success": False,
-                    "error": result.stderr,
+                    "stdout": result.stdout,
+                    "stderr": result.stderr,
                 },
                 status=500,
             )
