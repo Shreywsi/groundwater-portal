@@ -14,6 +14,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import MapIcon from "@mui/icons-material/Map";
 import DescriptionIcon from "@mui/icons-material/Description";
 import SettingsIcon from "@mui/icons-material/Settings";
+import PsychologyIcon from "@mui/icons-material/Psychology";
 
 export default function Sidebar() {
   const location = useLocation();
@@ -23,6 +24,11 @@ export default function Sidebar() {
       title: "Dashboard",
       icon: <DashboardIcon />,
       path: "/admin",
+    },
+    {
+      title: "AI Prediction",
+      icon: <PsychologyIcon />,
+      path: "/admin/ai",
     },
     {
       title: "My Workspace",

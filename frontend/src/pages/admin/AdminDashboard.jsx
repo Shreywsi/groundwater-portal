@@ -158,11 +158,7 @@ export default function AdminDashboard() {
 
         {/* Summary cards */}
         <DashboardCards summary={summary} loading={loading} />
-        <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
-          <Grid item xs={12}>
-            <AIPredictionCard />
-          </Grid>
-        </Grid>
+        
 
         {/* Charts */}
         <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>

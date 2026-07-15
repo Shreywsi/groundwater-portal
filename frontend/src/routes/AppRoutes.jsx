@@ -16,6 +16,8 @@ import ResearcherDashboard from "../pages/researcher/ResearcherDashboard";
 import AdminLayout from "../layouts/AdminLayout";
 import MyWorkspace from "../pages/admin/MyWorkspace";
 
+import AIPrediction from "../pages/admin/AIPrediction";
+
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -36,6 +38,14 @@ function AppRoutes() {
         element={
           <AdminLayout>
             <GISDataManager />
+          </AdminLayout>
+        }
+      />
+      <Route
+        path="/admin/ai"
+        element={
+          <AdminLayout>
+            <AIPrediction />
           </AdminLayout>
         }
       />
