@@ -12,12 +12,14 @@ import SalinityEntry from "../pages/crp/SalinityEntry";
 
 import CRPDashboard from "../pages/crp/CRPDashboard";
 import ResearcherDashboard from "../pages/researcher/ResearcherDashboard";
-import RegisterPage from "../pages/RegisterPage";
+import RegisterPage from "../pages/SignupPage";
 
 import AdminLayout from "../layouts/AdminLayout";
 import MyWorkspace from "../pages/admin/MyWorkspace";
 
 import AIPrediction from "../pages/admin/AIPrediction";
+
+import SignupPage from "../pages/SignupPage"
 
 function AppRoutes() {
   return (
@@ -63,7 +65,7 @@ function AppRoutes() {
         <Route path="/crp" element={<CRPDashboard />} />
 
         <Route path="/researcher" element={<ResearcherDashboard />} />
-
+        <Route path="/signup" element={<SignupPage />} />
       </Routes>
     </BrowserRouter>
   );

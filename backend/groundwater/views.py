@@ -25,8 +25,17 @@ import subprocess
 
 from pathlib import Path
 from rest_framework import status
-from .models import WaterTable, TDS, Salinity
+from .models import (
+    Pumping,
+    WaterLevel,
+    WaterTable,
+    TDS,
+    Salinity,
+    GISLayer,
+    UserProfile,
+)
 from .modflow_service import run_modflow
+from .models import UserProfile
 
 @api_view(["GET"])
 def dashboard(request):
@@ -185,56 +194,39 @@ def open_qgis(request):
     ])
 
     return Response({
-        "success": True
-    })
+    "success": True,
+    "message": "Registration successful."
+})
 
-@api_view(["POST"])
-def register_user(request):
-    username = str(request.data.get("username", "")).strip()
-    password = str(request.data.get("password", ""))
-    role = str(request.data.get("role", "")).strip()
-
-    if not username or not password:
-        return Response(
-            {"success": False, "error": "Username and password are required."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    if User.objects.filter(username=username).exists():
-        return Response(
-            {"success": False, "error": "Username already taken."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    user = User.objects.create_user(
-        username=username,
-        password=password,
-        first_name=role,
-    )
-    token, _ = Token.objects.get_or_create(user=user)
-
-    return Response({
-        "success": True,
-        "token": token.key,
-        "username": user.username,
-        "role": role,
-    })
 
 @api_view(["POST"])
 def login_user(request):
     username = str(request.data.get("username", "")).strip()
     password = str(request.data.get("password", ""))
-    role = str(request.data.get("role", "")).strip()
+    #role = str(request.data.get("role", "")).strip()
 
-    user = authenticate(request, username=username, password=password)
+    user = authenticate(
+        request,
+        username=username,
+        password=password,
+    )
+
     if user is None:
         return Response(
-            {"success": False, "error": "Invalid username or password."},
+            {
+                "success": False,
+                "error": "Invalid username or password.",
+            },
             status=status.HTTP_401_UNAUTHORIZED,
         )
 
     token, _ = Token.objects.get_or_create(user=user)
-    user_role = user.first_name or role
+
+    try:
+        profile = UserProfile.objects.get(user=user)
+        user_role = profile.role
+    except UserProfile.DoesNotExist:
+        user_role = "crp"
 
     return Response({
         "success": True,
@@ -902,4 +894,54 @@ def groundwater_prediction(request):
         "model": "LSTM",
         "predicted_groundwater_depth": prediction,
         "unit": "meters"
+    })
+
+@api_view(["POST"])
+def register(request):
+
+    full_name = request.data.get("full_name")
+    username = request.data.get("username")
+    email = request.data.get("email")
+    password = request.data.get("password")
+    role = request.data.get("role")
+
+    # Validate fields
+    if not all([full_name, username, email, password, role]):
+        return Response({
+            "success": False,
+            "error": "All fields are required."
+        })
+
+    # Check username
+    if User.objects.filter(username=username).exists():
+        return Response({
+            "success": False,
+            "error": "Username already exists."
+        })
+
+    # Check email
+    if User.objects.filter(email=email).exists():
+        return Response({
+            "success": False,
+            "error": "Email already exists."
+        })
+
+    # Create Django user
+    user = User.objects.create_user(
+        username=username,
+        email=email,
+        password=password,
+        first_name=full_name
+    )
+
+    # Create profile
+    UserProfile.objects.create(
+        user=user,
+        full_name=full_name,
+        role=role
+    )
+
+    return Response({
+        "success": True,
+        "message": "Registration successful."
     })

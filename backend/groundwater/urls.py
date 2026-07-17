@@ -21,12 +21,12 @@ from .views import (
     run_gempy,
     run_modflow_view,
     groundwater_prediction,
-    register_user,
     login_user,
+    register,
+
 )
 
 urlpatterns = [
-    path("auth/register/", register_user),
     path("auth/login/", login_user),
     path("dashboard/", dashboard),
     path("wells/", wells),
@@ -49,4 +49,5 @@ urlpatterns = [
     path("run-gempy/", run_gempy),
     path("run-modflow/", run_modflow_view),
     path("predict/", groundwater_prediction),
+    path("auth/register/", register),
 ]

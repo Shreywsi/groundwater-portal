@@ -24,8 +24,6 @@ const FORM_BG = "#fdf8f2";
 const ROLES = [
   { value: "admin",      label: "Admin",      Icon: ShieldOutlinedIcon },
   { value: "crp",        label: "CRP",        Icon: GroupsOutlinedIcon },
-  { value: "researcher", label: "Researcher", Icon: ScienceOutlinedIcon },
-  { value: "farmer",     label: "Farmer",     Icon: WaterDropOutlinedIcon },
 ];
 
 const STATS = [
@@ -39,14 +37,13 @@ function LoginPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     setError("");
 
-    if (!username || !password || !role) {
+    if (!username || !password) {
       setError("Please enter your username, password, and role.");
       return;
     }
@@ -58,7 +55,7 @@ function LoginPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password, role }),
+        body: JSON.stringify({ username, password}),
       });
 
       const data = await response.json();
@@ -71,7 +68,7 @@ function LoginPage() {
       localStorage.setItem("authToken", data.token);
       localStorage.setItem("authUsername", data.username);
       localStorage.setItem("authRole", data.role);
-      const routes = { admin: "/admin", farmer: "/farmer", crp: "/crp", researcher: "/researcher" };
+      const routes = { admin: "/admin", crp: "/crp" };
       navigate(routes[data.role] || "/");
     } catch (err) {
       setError("Unable to connect to the backend. Please try again.");
@@ -235,43 +232,6 @@ function LoginPage() {
               )}}
             />
 
-            {/* Role selector */}
-            <Typography variant="caption" sx={{
-              display: "block", mt: 2.5, mb: 1,
-              textTransform: "uppercase", letterSpacing: "0.07em",
-              color: "#6b7280", fontWeight: 500, fontSize: 11,
-            }}>
-              Select role
-            </Typography>
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
-              {ROLES.map(({ value, label, Icon }) => (
-                <Paper
-                  key={value}
-                  variant="outlined"
-                  onClick={() => { setRole(value); setError(""); }}
-                  sx={{
-                    p: 1.5,
-                    display: "flex", alignItems: "center", gap: 1,
-                    cursor: "pointer", borderRadius: 2,
-                    bgcolor: role === value ? "#EEF2FF" : "#fff",
-                    borderColor: role === value ? PANEL : "#e5e0d8",
-                    borderWidth: role === value ? "1.5px" : "0.5px",
-                    color: role === value ? PANEL : "#6b7280",
-                    "&:hover": {
-                      bgcolor: role === value ? "#EEF2FF" : "#f5f0e8",
-                      borderColor: role === value ? PANEL : "#c9c4bc",
-                    },
-                    transition: "all 0.15s",
-                  }}
-                >
-                  <Icon fontSize="small" />
-                  <Typography sx={{ fontSize: 13, fontWeight: role === value ? 500 : 400 }}>
-                    {label}
-                  </Typography>
-                </Paper>
-              ))}
-            </Box>
-
             {error && (
               <Typography variant="caption" sx={{ display: "block", mt: 1, color: "#dc2626" }}>
                 {error}
@@ -296,6 +256,15 @@ function LoginPage() {
             >
               Sign in
             </Button>
+            <Typography sx={{ mt: 2, textAlign: "center" }}>
+              New user?
+              <Button
+                variant="text"
+                onClick={() => navigate("/signup")}
+              >
+                Create Account
+              </Button>
+            </Typography>
 
             {/* Footer note */}
             <Box sx={{

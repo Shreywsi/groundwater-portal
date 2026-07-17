@@ -8,13 +8,16 @@ import {
   Typography,
   TextField,
   InputAdornment,
-  Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
+//import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
-import ScienceOutlinedIcon from "@mui/icons-material/ScienceOutlined";
+//import ScienceOutlinedIcon from "@mui/icons-material/ScienceOutlined";
 import WaterDropOutlinedIcon from "@mui/icons-material/WaterDropOutlined";
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 
@@ -26,27 +29,31 @@ const ACCENT = "#2A3F6F";
 const FORM_BG = "#fdf8f2";
 
 const ROLES = [
-  { value: "admin", label: "Admin", Icon: ShieldOutlinedIcon },
-  { value: "crp", label: "CRP", Icon: GroupsOutlinedIcon },
-  { value: "researcher", label: "Researcher", Icon: ScienceOutlinedIcon },
-  { value: "farmer", label: "Farmer", Icon: WaterDropOutlinedIcon },
+  {
+    value: "crp",
+    label: "CRP",
+    Icon: GroupsOutlinedIcon,
+  },
 ];
 
-function RegisterPage() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
+function SignupPage()  {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState("crp");
+  const { t } = useTranslation();
+const navigate = useNavigate();
+
+const [message, setMessage] = useState("");
+const [error, setError] = useState("");
+const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
     setError("");
     setMessage("");
 
-    if (!username || !password || !role) {
+    if (!fullName || !email || !username || !password || !role) {
       setError("Please fill in all fields and select a role.");
       return;
     }
@@ -59,7 +66,13 @@ function RegisterPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password, role }),
+        body: JSON.stringify({
+  full_name: fullName,
+  email,
+  username,
+  password,
+  role,
+}),
       });
 
       const data = await response.json();
@@ -68,10 +81,6 @@ function RegisterPage() {
         setLoading(false);
         return;
       }
-
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("authUsername", data.username);
-      localStorage.setItem("authRole", data.role);
       setMessage("Registration complete. Redirecting to login...");
       setTimeout(() => navigate("/"), 900);
     } catch (err) {
@@ -202,6 +211,17 @@ function RegisterPage() {
         >
           <Box sx={{ width: "100%", maxWidth: 380 }}>
             <Box sx={{ mb: 3.5 }}>
+              {error && (
+  <Typography color="error" sx={{ mb: 2 }}>
+    {error}
+  </Typography>
+)}
+
+{message && (
+  <Typography color="success.main" sx={{ mb: 2 }}>
+    {message}
+  </Typography>
+)}
               <Typography variant="h5" sx={{ fontWeight: 500, color: "#1a1a2e", mb: 0.5 }}>
                 Create your account
               </Typography>
@@ -211,8 +231,46 @@ function RegisterPage() {
             </Box>
 
             <TextField
-              fullWidth
-              label={t("username")}
+  fullWidth
+  label="Full Name"
+  value={fullName}
+  onChange={(e) => setFullName(e.target.value)}
+  margin="normal"
+  sx={{
+    "& .MuiOutlinedInput-root": {
+      bgcolor: "#fff",
+      "&.Mui-focused fieldset": { borderColor: ACCENT },
+    },
+    "& .MuiInputLabel-root.Mui-focused": { color: ACCENT },
+  }}
+  InputProps={{
+    startAdornment: (
+      <InputAdornment position="start">
+        <PersonIcon fontSize="small" sx={{ color: "#9ca3af" }} />
+      </InputAdornment>
+    ),
+  }}
+/>
+
+<TextField
+  fullWidth
+  label="Email"
+  type="email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  margin="normal"
+  sx={{
+    "& .MuiOutlinedInput-root": {
+      bgcolor: "#fff",
+      "&.Mui-focused fieldset": { borderColor: ACCENT },
+    },
+    "& .MuiInputLabel-root.Mui-focused": { color: ACCENT },
+  }}
+/>
+
+<TextField
+  fullWidth
+  label={t("username")}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               margin="normal"
@@ -255,68 +313,22 @@ function RegisterPage() {
               }}
             />
 
-            <Typography
-              variant="caption"
-              sx={{
-                display: "block",
-                mt: 2.5,
-                mb: 1,
-                textTransform: "uppercase",
-                letterSpacing: "0.07em",
-                color: "#6b7280",
-                fontWeight: 500,
-                fontSize: 11,
-              }}
-            >
-              Select role
-            </Typography>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Role</InputLabel>
 
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
-              {ROLES.map(({ value, label, Icon }) => (
-                <Paper
-                  key={value}
-                  variant="outlined"
-                  onClick={() => {
-                    setRole(value);
-                    setError("");
-                  }}
-                  sx={{
-                    p: 1.5,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    cursor: "pointer",
-                    borderRadius: 2,
-                    bgcolor: role === value ? "#EEF2FF" : "#fff",
-                    borderColor: role === value ? PANEL : "#e5e0d8",
-                    borderWidth: role === value ? "1.5px" : "0.5px",
-                    color: role === value ? PANEL : "#6b7280",
-                    "&:hover": {
-                      bgcolor: role === value ? "#EEF2FF" : "#f5f0e8",
-                    },
-                    transition: "all 0.15s",
-                  }}
-                >
-                  <Icon fontSize="small" />
-                  <Typography sx={{ fontSize: 13, fontWeight: role === value ? 500 : 400 }}>
-                    {label}
-                  </Typography>
-                </Paper>
-              ))}
-            </Box>
-
-            {(error || message) && (
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  mt: 1,
-                  color: error ? "#dc2626" : "#16a34a",
-                }}
+              <Select
+                value={role}
+                label="Role"
+                onChange={(e) => setRole(e.target.value)}
               >
-                {error || message}
-              </Typography>
-            )}
+                <MenuItem value="admin">Admin</MenuItem>
+
+                <MenuItem value="crp">
+                  Community Resource Person (CRP)
+                </MenuItem>
+              </Select>
+            </FormControl>
+          
 
             <Button
               variant="contained"
@@ -370,4 +382,4 @@ function RegisterPage() {
   );
 }
 
-export default RegisterPage;
+export default SignupPage;

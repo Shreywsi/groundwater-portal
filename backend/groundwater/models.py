@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 
 class Pumping(models.Model):
     hours = models.FloatField()
@@ -42,3 +42,25 @@ class GISLayer(models.Model):
 
     def __str__(self):
         return self.name
+class UserProfile(models.Model):
+
+    ROLE_CHOICES = [
+        ("admin", "Admin"),
+        ("crp", "Community Resource Person"),
+    ]
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    full_name = models.CharField(max_length=150)
+
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default="crp"
+    )
+
+    def __str__(self):
+        return f"{self.full_name} ({self.role})"
