@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import {
   Box,
@@ -15,9 +15,19 @@ import MapIcon from "@mui/icons-material/Map";
 import DescriptionIcon from "@mui/icons-material/Description";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PsychologyIcon from "@mui/icons-material/Psychology";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 export default function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("authUsername");
+  localStorage.removeItem("authRole");
+
+  navigate("/", { replace: true });
+};
 
   const menu = [
     {
@@ -82,7 +92,7 @@ export default function Sidebar() {
         Water Portal
       </Typography>
 
-      <List>
+      <List sx={{ flexGrow: 1 }}>
         {menu.map((item) => (
           <ListItemButton
             key={item.title}
@@ -106,6 +116,24 @@ export default function Sidebar() {
             <ListItemText primary={item.title} />
           </ListItemButton>
         ))}
+            </List>
+
+      <List>
+        <ListItemButton
+          onClick={handleLogout}
+          sx={{
+            color: "#ef4444",
+            "&:hover": {
+              bgcolor: "#334155",
+            },
+          }}
+        >
+          <ListItemIcon sx={{ color: "#ef4444" }}>
+            <LogoutIcon />
+          </ListItemIcon>
+
+          <ListItemText primary="Logout" />
+        </ListItemButton>
       </List>
     </Box>
   );
