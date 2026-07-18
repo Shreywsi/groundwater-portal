@@ -84,3 +84,21 @@ class WaterBalance(models.Model):
 
     def __str__(self):
         return f"Water Balance ({self.date})"
+
+class Dataset(models.Model):
+    name = models.CharField(max_length=255)
+
+    file_name = models.CharField(max_length=255)
+
+    file_path = models.TextField()
+
+    rows = models.IntegerField(default=0)
+
+    columns = models.IntegerField(default=0)
+
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name

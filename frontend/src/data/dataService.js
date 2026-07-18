@@ -269,3 +269,22 @@ export async function fetchProfile() {
     name: "Admin"
   };
 }
+export async function fetchGroundwaterPrediction() {
+  try {
+    const response = await fetch(`${API_BASE}/predict/`);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch prediction");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Prediction error:", error);
+
+    return {
+      status: "error",
+      predicted_groundwater_depth: "--",
+      unit: "meters",
+    };
+  }
+}

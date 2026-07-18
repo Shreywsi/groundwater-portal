@@ -24,6 +24,8 @@ from .views import (
     login_user,
     register,
     add_water_balance,
+    upload_dataset,
+    retrain_lstm,
 
 )
 
@@ -52,4 +54,6 @@ urlpatterns = [
     path("predict/", groundwater_prediction),
     path("auth/register/", register),
     path("water-balance/add/", add_water_balance),
+    path("ml/upload-dataset/", upload_dataset),
+    path("ml/retrain/", retrain_lstm),
 ]

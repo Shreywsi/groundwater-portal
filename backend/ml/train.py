@@ -13,13 +13,31 @@ from tensorflow.keras.callbacks import EarlyStopping
 # Load Data
 # -------------------------
 
-df = pd.read_csv("ml/data/processed/training_data.csv")
+from dataset import get_active_dataset
+
+df = pd.read_csv(get_active_dataset())
 
 features = [
     "rainfall_mm",
     "water_balance",
     "groundwater_depth"
 ]
+# Convert uploaded CSV columns into LSTM format
+
+if "water_level_m" in df.columns:
+    df["groundwater_depth"] = df["water_level_m"]
+
+if "water_balance" not in df.columns:
+    df["water_balance"] = 0
+df = df.sort_values("time")
+
+
+df["rainfall_mm"] = df["rainfall_mm"].fillna(0)
+df["groundwater_depth"] = df["groundwater_depth"].fillna(
+    df["groundwater_depth"].mean()
+)
+
+df["water_balance"] = df["water_balance"].fillna(0)
 
 data = df[features].values
 
@@ -43,7 +61,7 @@ y = []
 for i in range(SEQUENCE_LENGTH, len(scaled_data)):
     X.append(scaled_data[i-SEQUENCE_LENGTH:i])
 
-    # groundwater_depth is column index 2
+    # water_level_m is column index 2
     y.append(scaled_data[i, 2])
 
 X = np.array(X)

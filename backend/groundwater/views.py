@@ -1,6 +1,9 @@
 import sys
 import os
-
+import pandas as pd
+from ml.retrain import retrain_model
+from django.conf import settings
+from .models import Dataset
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 sys.path.append(BASE_DIR)
@@ -993,3 +996,107 @@ def add_water_balance(request):
             "delta_s": delta_s,
         }
     )
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(["POST"])
+def upload_dataset(request):
+    file = request.FILES.get("file")
+
+    if not file:
+        return Response(
+            {"success": False, "message": "No file uploaded"},
+            status=400
+        )
+
+    upload_dir = os.path.join(settings.BASE_DIR, "uploads", "datasets", "active")
+    os.makedirs(upload_dir, exist_ok=True)
+
+    file_path = os.path.join(upload_dir, file.name)
+
+    with open(file_path, "wb+") as destination:
+        for chunk in file.chunks():
+            destination.write(chunk)
+
+    df = pd.read_csv(file_path)
+    master_dataset = os.path.join(
+        settings.BASE_DIR,
+        "ml",
+        "data",
+        "processed",
+        "database_training_data.csv"
+    )
+
+    if os.path.exists(master_dataset):
+
+        existing_df = pd.read_csv(master_dataset)
+
+        combined_df = pd.concat(
+            [existing_df, df],
+            ignore_index=True
+        )
+
+
+        # Remove duplicate observations
+        # Same well + same date = same measurement
+
+        duplicate_columns = [
+            "time",
+            "well_name",
+            "village"
+        ]
+
+
+        # Only apply if columns exist
+        available_duplicates = [
+            col for col in duplicate_columns
+            if col in combined_df.columns
+        ]
+
+
+        if available_duplicates:
+            combined_df = combined_df.drop_duplicates(
+                subset=available_duplicates,
+                keep="last"
+            )
+        else:
+            combined_df = combined_df.drop_duplicates()
+        if "time" in combined_df.columns:
+            combined_df = combined_df.sort_values(
+                by="time"
+            )
+
+    else:
+
+        combined_df = df
+
+    combined_df.to_csv(
+        master_dataset,
+        index=False
+    )
+
+    dataset = Dataset.objects.create(
+        name=file.name,
+        file_name=file.name,
+        file_path=file_path,
+        rows=len(df),
+        columns=len(df.columns),
+    )
+
+    training_result = retrain_model()
+
+    return Response({
+        "success": True,
+        "dataset_id": dataset.id,
+        "file_name": file.name,
+        "training": training_result
+    })
+@api_view(["POST"])
+def retrain_lstm(request):
+
+    result = retrain_model()
+
+    if result["success"]:
+        return Response(result)
+
+    return Response(result, status=500)
