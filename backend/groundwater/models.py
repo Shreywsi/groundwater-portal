@@ -64,3 +64,23 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.full_name} ({self.role})"
+class WaterBalance(models.Model):
+    date = models.DateField(auto_now_add=True)
+
+    Rr = models.FloatField(default=0)
+    Re = models.FloatField(default=0)
+    Ri = models.FloatField(default=0)
+    I = models.FloatField(default=0)
+    Si = models.FloatField(default=0)
+
+    Se = models.FloatField(default=0)
+    O = models.FloatField(default=0)
+    Et = models.FloatField(default=0)
+    Dp = models.FloatField(default=0)
+
+    delta_s = models.FloatField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Water Balance ({self.date})"

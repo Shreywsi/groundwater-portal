@@ -23,6 +23,7 @@ from .views import (
     groundwater_prediction,
     login_user,
     register,
+    add_water_balance,
 
 )
 
@@ -50,4 +51,5 @@ urlpatterns = [
     path("run-modflow/", run_modflow_view),
     path("predict/", groundwater_prediction),
     path("auth/register/", register),
+    path("water-balance/add/", add_water_balance),
 ]

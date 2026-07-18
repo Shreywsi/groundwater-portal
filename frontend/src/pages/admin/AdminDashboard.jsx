@@ -22,8 +22,6 @@ import RecordPieChart from "../../components/charts/RecordPieChart";
 import WaterLevelChart from "../../components/charts/WaterLevelChart";
 import TDSChart from "../../components/charts/TDSChart";
 import SalinityChart from "../../components/charts/SalinityChart";
-import AddWaterLevelForm from "../../components/admin/AddWaterLevelForm";
-import AddWellDepthForm from "../../components/admin/AddWellDepthForm";
 import WaterMap from "../../components/WaterMap";
 import API_BASE from "../../config/api";
 
@@ -373,14 +371,6 @@ export default function AdminDashboard() {
             <WaterMap refreshKey={mapRefreshKey} />
           </Box>
         </Card>
-
-        <>
-          <AddWaterLevelForm onDataAdded={refreshWaterData} />
-
-          <Box mt={3}>
-            <AddWellDepthForm onDataAdded={refreshWaterData} />
-          </Box>
-        </>
 
         {/* Recent Activity */}
         <Box sx={{ overflowX: "auto" }}>

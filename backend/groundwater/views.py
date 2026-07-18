@@ -33,6 +33,7 @@ from .models import (
     Salinity,
     GISLayer,
     UserProfile,
+    WaterBalance,
 )
 from .modflow_service import run_modflow
 from .models import UserProfile
@@ -945,3 +946,50 @@ def register(request):
         "success": True,
         "message": "Registration successful."
     })
+
+@csrf_exempt
+@api_view(["POST"])
+def add_water_balance(request):
+
+    data = request.data
+
+    try:
+        Rr = float(data.get("Rr", 0))
+        Re = float(data.get("Re", 0))
+        Ri = float(data.get("Ri", 0))
+        I = float(data.get("I", 0))
+        Si = float(data.get("Si", 0))
+
+        Se = float(data.get("Se", 0))
+        O = float(data.get("O", 0))
+        Et = float(data.get("Et", 0))
+        Dp = float(data.get("Dp", 0))
+
+    except (TypeError, ValueError):
+        return Response(
+            {"success": False, "error": "Invalid numeric values."},
+            status=400,
+        )
+
+    delta_s = (Rr + Re + Ri + I + Si) - (Se + O + Et + Dp)
+
+    record = WaterBalance.objects.create(
+        Rr=Rr,
+        Re=Re,
+        Ri=Ri,
+        I=I,
+        Si=Si,
+        Se=Se,
+        O=O,
+        Et=Et,
+        Dp=Dp,
+        delta_s=delta_s,
+    )
+
+    return Response(
+        {
+            "success": True,
+            "id": record.id,
+            "delta_s": delta_s,
+        }
+    )
