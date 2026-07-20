@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -19,7 +19,11 @@ import {
   Divider,
   Chip,
   Grid,
-  InputAdornment
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
@@ -259,10 +263,20 @@ export default function WaterBalanceCard({
   const [values, setValues] = useState({ ...DEFAULT_VALUES, ...initialValues });
   const [expanded, setExpanded] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [clusters, setClusters] = useState([]);
 
+  const [selectedCluster, setSelectedCluster] = useState("");
   const totals = useMemo(() => computeTotals(values), [values]);
   const isSurplus = totals.deltaS >= 0;
   const accent = isSurplus ? PALETTE.recharge : PALETTE.depletion;
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:8000/api/village-list/")
+      .then((res) => {
+        setClusters(res.data);
+      })
+      .catch(console.error);
+  }, []);
 
   const handleFieldChange = (key, raw) => {
     // Allow empty string while typing, otherwise parse as float
@@ -272,12 +286,20 @@ export default function WaterBalanceCard({
   };
 
   const saveWaterBalance = async () => {
+    if (!selectedCluster) {
+  alert("Please select a village/cluster.");
+  return;
+}
     try {
       setSaving(true);
 
-      const response = await axios.post("http://127.0.0.1:8000/api/water-balance/add/", {
-        ...values
-      });
+      const response = await axios.post(
+  "http://127.0.0.1:8000/api/water-balance/add/",
+  {
+    ...values,
+    village_cluster: selectedCluster,
+  }
+);
 
       alert(`Water Balance Saved\nΔS = ${response.data.delta_s}`);
     } catch (err) {
@@ -347,7 +369,25 @@ export default function WaterBalanceCard({
           <BalanceGauge inflow={totals.inflow} outflow={totals.outflow} />
         </Box>
       </Stack>
-
+      <Box sx={{ mt: 3, mb: 2 }}>
+  <FormControl fullWidth>
+    <InputLabel>Location</InputLabel>
+    <Select
+      value={selectedCluster}
+      label="Location"
+      onChange={(e) => setSelectedCluster(e.target.value)}
+    >
+      {clusters.map((cluster) => (
+        <MenuItem
+          key={cluster.id}
+          value={cluster.id}
+        >
+          {cluster.name}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+</Box>
       <Box sx={{ mt: 2.5 }}>
         <Button
           size="small"
@@ -365,6 +405,7 @@ export default function WaterBalanceCard({
             "&:hover": { bgcolor: "transparent", color: PALETTE.recharge }
           }}
         >
+          
           {expanded ? "Hide component breakdown" : "See component breakdown"}
         </Button>
       </Box>
@@ -400,12 +441,8 @@ export default function WaterBalanceCard({
         </Grid>
 
         {/* Save button */}
-        <Stack direction="row" justifyContent="flex-end" sx={{ mt: 3 }}>
-          <Button variant="contained" color="primary" onClick={saveWaterBalance} disabled={saving}>
-            {saving ? "Saving..." : "Save Water Balance"}
-          </Button>
-        </Stack>
-
+        
+          
         {/* Summary line */}
         <Box
           sx={{
@@ -426,6 +463,11 @@ export default function WaterBalanceCard({
             {isSurplus ? "Groundwater storage is increasing" : "Groundwater storage is decreasing"}
           </Typography>
         </Box>
+        <Stack direction="row" justifyContent="flex-end" sx={{ mt: 3 }}>
+          <Button variant="contained" color="primary" onClick={saveWaterBalance} disabled={saving}>
+            {saving ? "Saving..." : "Save Water Balance"}
+          </Button>
+        </Stack>
       </Collapse>
     </Card>
   );

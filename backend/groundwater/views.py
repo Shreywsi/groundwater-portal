@@ -9,6 +9,8 @@ from ml.retrain import retrain_model
 from django.conf import settings
 from .models import Dataset
 from ml.build_dataset import build_master_dataset
+from .models import VillageCluster
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 sys.path.append(BASE_DIR)
@@ -1055,6 +1057,25 @@ def water_balance_history(request):
         "summary": summary,
         "records": data
     })
+def village_clusters(request):
+    clusters = VillageCluster.objects.all().values(
+        "id",
+        "name"
+    )
+
+    return JsonResponse(
+        list(clusters),
+        safe=False
+    )
+@api_view(["GET"])
+def village_cluster_list(request):
+
+    villages = VillageCluster.objects.all().values(
+        "id",
+        "name"
+    )
+
+    return Response(villages)
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 def background_retrain():

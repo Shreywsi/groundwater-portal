@@ -64,6 +64,24 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.full_name} ({self.role})"
+    
+class VillageCluster(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+
+    district = models.CharField(
+        max_length=150,
+        blank=True,
+        default=""
+    )
+
+    state = models.CharField(
+        max_length=150,
+        blank=True,
+        default=""
+    )
+
+    def __str__(self):
+        return self.name
 class WaterBalance(models.Model):
     date = models.DateField(auto_now_add=True)
 
@@ -81,7 +99,13 @@ class WaterBalance(models.Model):
     delta_s = models.FloatField()
 
     created_at = models.DateTimeField(auto_now_add=True)
-
+    village_cluster = models.ForeignKey(
+    VillageCluster,
+    on_delete=models.CASCADE,
+    related_name="water_balances",
+    null=True,
+    blank=True,
+)
     def __str__(self):
         return f"Water Balance ({self.date})"
 
