@@ -15,6 +15,7 @@ sys.path.append(BASE_DIR)
 
 from ml.predict import predict_water_balance
 
+from .serializers import WaterBalanceSerializer
 from django.http import JsonResponse
 from django.conf import settings
 from django.db import connection
@@ -1013,6 +1014,21 @@ def add_water_balance(request):
             "delta_s": delta_s,
         }
     )
+@api_view(["GET"])
+def water_balance_history(request):
+
+    history = (
+        WaterBalance.objects
+        .all()
+        .order_by("-created_at")
+    )
+
+    serializer = WaterBalanceSerializer(
+        history,
+        many=True
+    )
+
+    return Response(serializer.data)
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 def background_retrain():

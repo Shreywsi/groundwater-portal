@@ -16,6 +16,8 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import LogoutIcon from "@mui/icons-material/Logout";
+import WaterDropRoundedIcon from "@mui/icons-material/WaterDropRounded";
+
 
 export default function Sidebar() {
   const location = useLocation();
@@ -60,6 +62,11 @@ export default function Sidebar() {
       icon: <SettingsIcon />,
       path: "/admin/settings",
     },
+    {
+    title: "Water History",
+    icon: <WaterDropRoundedIcon />,
+    path: "/admin/water-history",
+}
   ];
 
   return (

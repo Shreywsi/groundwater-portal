@@ -9,3 +9,11 @@ class WellSerializer(serializers.Serializer):
     longitude = serializers.FloatField()
     depth_m = serializers.FloatField()
     water_level_m = serializers.FloatField()
+
+from .models import WaterBalance
+
+
+class WaterBalanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WaterBalance
+        fields = "__all__"
