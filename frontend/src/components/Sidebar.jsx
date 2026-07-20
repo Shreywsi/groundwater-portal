@@ -17,6 +17,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import LogoutIcon from "@mui/icons-material/Logout";
 import WaterDropRoundedIcon from "@mui/icons-material/WaterDropRounded";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 
 export default function Sidebar() {
@@ -32,42 +33,47 @@ export default function Sidebar() {
 };
 
   const menu = [
-    {
-      title: "Dashboard",
-      icon: <DashboardIcon />,
-      path: "/admin",
-    },
-    {
-      title: "AI Prediction",
-      icon: <PsychologyIcon />,
-      path: "/admin/ai",
-    },
-    {
-      title: "My Workspace",
-      icon: <FolderIcon />,
-      path: "/admin/workspace",
-    },
-    {
-      title: "GIS Workspace",
-      icon: <MapIcon />,
-      path: "/admin/gis",
-    },
-    {
-      title: "Reports",
-      icon: <DescriptionIcon />,
-      path: "/admin/reports",
-    },
-    {
-      title: "Settings",
-      icon: <SettingsIcon />,
-      path: "/admin/settings",
-    },
-    {
+  {
+    title: "Dashboard",
+    icon: <DashboardIcon />,
+    path: "/admin",
+  },
+  {
+    title: "AI Prediction",
+    icon: <PsychologyIcon />,
+    path: "/admin/ai",
+  },
+  {
+    title: "My Workspace",
+    icon: <FolderIcon />,
+    path: "/admin/workspace",
+  },
+  {
+    title: "GIS Workspace",
+    icon: <MapIcon />,
+    path: "/admin/gis",
+  },
+  {
+    title: "Reports",
+    icon: <DescriptionIcon />,
+    path: "/admin/reports",
+  },
+  {
+    title: "Settings",
+    icon: <SettingsIcon />,
+    path: "/admin/settings",
+  },
+  {
+    title: "Locations",
+    icon: <LocationOnIcon />,
+    path: "/admin/locations",
+  },
+  {
     title: "Water History",
     icon: <WaterDropRoundedIcon />,
     path: "/admin/water-history",
-}
-  ];
+  },
+];
 
   return (
     <Box

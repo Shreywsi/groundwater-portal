@@ -29,7 +29,9 @@ from .views import (
     ai_dashboard,
     forecast_api,
     water_balance_history,
-    village_cluster_list,
+    add_location,
+    location_list,
+    
 
 )
 
@@ -64,7 +66,14 @@ urlpatterns = [
     path("ml/forecast/<str:period>/",forecast_api,),
     path("water-balance/history/",water_balance_history),
     path(
-    "village-list/",
-    village_cluster_list,
+    "location-list/",
+    location_list,
+    name="location_list",
+),
+
+path(
+    "location/add/",
+    add_location,
+    name="add_location",
 ),
 ]

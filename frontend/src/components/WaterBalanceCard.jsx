@@ -265,13 +265,13 @@ export default function WaterBalanceCard({
   const [saving, setSaving] = useState(false);
   const [clusters, setClusters] = useState([]);
 
-  const [selectedCluster, setSelectedCluster] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
   const totals = useMemo(() => computeTotals(values), [values]);
   const isSurplus = totals.deltaS >= 0;
   const accent = isSurplus ? PALETTE.recharge : PALETTE.depletion;
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:8000/api/village-list/")
+  .get("http://127.0.0.1:8000/api/location-list/")
       .then((res) => {
         setClusters(res.data);
       })
@@ -286,7 +286,7 @@ export default function WaterBalanceCard({
   };
 
   const saveWaterBalance = async () => {
-    if (!selectedCluster) {
+    if (!selectedLocation) {
   alert("Please select a village/cluster.");
   return;
 }
@@ -297,7 +297,7 @@ export default function WaterBalanceCard({
   "http://127.0.0.1:8000/api/water-balance/add/",
   {
     ...values,
-    village_cluster: selectedCluster,
+    village_cluster: selectedLocation,
   }
 );
 
@@ -373,9 +373,9 @@ export default function WaterBalanceCard({
   <FormControl fullWidth>
     <InputLabel>Location</InputLabel>
     <Select
-      value={selectedCluster}
+      value={selectedLocation}
       label="Location"
-      onChange={(e) => setSelectedCluster(e.target.value)}
+      onChange={(e) => setSelectedLocation(e.target.value)}
     >
       {clusters.map((cluster) => (
         <MenuItem

@@ -22,6 +22,7 @@ import AIPrediction from "../pages/admin/AIPrediction";
 import SignupPage from "../pages/SignupPage"
 
 import WaterBalanceHistory from "../pages/admin/WaterBalanceHistory";
+import Locations from "../pages/admin/Locations";
 
 function AppRoutes() {
   return (
@@ -38,7 +39,14 @@ function AppRoutes() {
           </AdminLayout>
         }
       />
-<Route path="/admin/workspace" element={<MyWorkspace />} />
+      <Route
+  path="/admin/workspace"
+  element={
+    <AdminLayout>
+      <MyWorkspace />
+    </AdminLayout>
+  }
+/>
       <Route
         path="/admin/gis"
         element={
@@ -64,7 +72,14 @@ function AppRoutes() {
         <Route path="/farmer/water-level" element={<WaterLevelEntry />} />
         <Route path="/farmer/tds" element={<TDSEntry />} />
         <Route path="/farmer/salinity" element={<SalinityEntry />} />
-    
+        <Route
+        path="/admin/locations"
+        element={
+          <AdminLayout>
+            <Locations />
+          </AdminLayout>
+        }
+      />
 
         <Route path="/crp" element={<CRPDashboard />} />
         <Route

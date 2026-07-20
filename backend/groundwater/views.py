@@ -3,23 +3,22 @@ import os
 import pandas as pd
 import json
 import threading
+import traceback
+
 from datetime import datetime
 from ml.preprocess import preprocess_dataset
 from ml.retrain import retrain_model
 from django.conf import settings
 from .models import Dataset
 from ml.build_dataset import build_master_dataset
-from .models import VillageCluster
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 sys.path.append(BASE_DIR)
 
 from ml.predict import predict_water_balance
-
 from .serializers import WaterBalanceSerializer
 from django.http import JsonResponse
-from django.conf import settings
 from django.db import connection
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -31,10 +30,9 @@ from rest_framework.decorators import api_view
 from rest_framework.authtoken.models import Token
 from ml.forecast import forecast_water_balance
 from .gempy_service import build_geological_model
-from ml.predict import predict_water_balance
-import subprocess
 
-from pathlib import Path
+
+
 from rest_framework import status
 from .models import (
     Pumping,
@@ -45,6 +43,7 @@ from .models import (
     GISLayer,
     UserProfile,
     WaterBalance,
+    Location,
 )
 from .modflow_service import run_modflow
 from .models import UserProfile
@@ -145,7 +144,71 @@ def village_clusters_geojson(request):
         geojson = cursor.fetchone()[0]
 
     return Response(geojson)
+@api_view(["POST"])
+def add_location(request):
+    data = request.data
 
+    name = data.get("name")
+    location_type = data.get("location_type")
+    district = data.get("district")
+    state = data.get("state")
+    parent_id = data.get("parent")
+
+    if not name:
+        return Response(
+            {
+                "success": False,
+                "message": "Location name is required."
+            },
+            status=400,
+        )
+
+    parent = None
+    if parent_id:
+        try:
+            parent = Location.objects.get(id=parent_id)
+        except Location.DoesNotExist:
+            return Response(
+                {
+                    "success": False,
+                    "message": "Parent location not found."
+                },
+                status=404,
+            )
+
+    location = Location.objects.create(
+        name=name,
+        location_type=location_type or "Village",
+        district=district or "",
+        state=state or "",
+        parent=parent,
+    )
+
+    return Response(
+        {
+            "success": True,
+            "id": location.id,
+            "name": location.name,
+            "location_type": location.location_type,
+        }
+    )
+@api_view(["GET"])
+def location_list(request):
+    locations = Location.objects.all().order_by("name")
+
+    data = [
+        {
+            "id": location.id,
+            "name": location.name,
+            "location_type": location.location_type,
+            "district": location.district,
+            "state": location.state,
+            "parent": location.parent.id if location.parent else None,
+        }
+        for location in locations
+    ]
+
+    return Response(data)
 @api_view(["GET"])
 def waterlevel(request):
 
@@ -208,7 +271,7 @@ def open_qgis(request):
 
     return Response({
     "success": True,
-    "message": "Registration successful."
+    "message": "QGIS launched successfully."
 })
 
 
@@ -429,7 +492,6 @@ def well_detail(request, well_id):
 
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
-import traceback
 
 
 @csrf_exempt
@@ -985,7 +1047,21 @@ def add_water_balance(request):
         )
 
     delta_s = (Rr + Re + Ri + I + Si) - (Se + O + Et + Dp)
+    location_id = data.get("location")
 
+    location = None
+
+    if location_id:
+        try:
+            location = Location.objects.get(id=location_id)
+        except Location.DoesNotExist:
+            return Response(
+                {
+                    "success": False,
+                    "error": "Invalid location."
+                },
+                status=400,
+            )
     record = WaterBalance.objects.create(
         Rr=Rr,
         Re=Re,
@@ -997,6 +1073,7 @@ def add_water_balance(request):
         Et=Et,
         Dp=Dp,
         delta_s=delta_s,
+        location=location,
     )
     from ml.dataset_export import export_database_to_training_dataset
     from ml.train import train_model
@@ -1057,25 +1134,8 @@ def water_balance_history(request):
         "summary": summary,
         "records": data
     })
-def village_clusters(request):
-    clusters = VillageCluster.objects.all().values(
-        "id",
-        "name"
-    )
 
-    return JsonResponse(
-        list(clusters),
-        safe=False
-    )
-@api_view(["GET"])
-def village_cluster_list(request):
 
-    villages = VillageCluster.objects.all().values(
-        "id",
-        "name"
-    )
-
-    return Response(villages)
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 def background_retrain():
@@ -1365,4 +1425,7 @@ def forecast_api(request, period):
     **result
 
 })
+from rest_framework.decorators import api_view
+
+
 

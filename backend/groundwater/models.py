@@ -65,8 +65,32 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.full_name} ({self.role})"
     
-class VillageCluster(models.Model):
-    name = models.CharField(max_length=150, unique=True)
+class Location(models.Model):
+    LOCATION_TYPES = [
+        ("Village", "Village"),
+        ("Town", "Town"),
+        ("City", "City"),
+        ("Taluka", "Taluka"),
+        ("District", "District"),
+        ("Watershed", "Watershed"),
+        ("River Basin", "River Basin"),
+    ]
+
+    name = models.CharField(max_length=200)
+
+    location_type = models.CharField(
+        max_length=30,
+        choices=LOCATION_TYPES,
+        default="Village",
+    )
+
+    parent = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="children",
+    )
 
     district = models.CharField(
         max_length=150,
@@ -79,6 +103,8 @@ class VillageCluster(models.Model):
         blank=True,
         default=""
     )
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
@@ -99,8 +125,8 @@ class WaterBalance(models.Model):
     delta_s = models.FloatField()
 
     created_at = models.DateTimeField(auto_now_add=True)
-    village_cluster = models.ForeignKey(
-    VillageCluster,
+    location = models.ForeignKey(
+    Location,
     on_delete=models.CASCADE,
     related_name="water_balances",
     null=True,
