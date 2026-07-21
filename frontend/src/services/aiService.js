@@ -1,4 +1,6 @@
-const API = "http://127.0.0.1:8000/api";
+import API_BASE from "../config/api";
+
+const API = API_BASE;
 
 export async function getAIDashboard() {
     const response = await fetch(`${API}/ml/dashboard/`);

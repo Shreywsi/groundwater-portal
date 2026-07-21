@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-
+import API_BASE from "../../config/api";
 import {
   Card,
   Typography,
@@ -25,8 +25,8 @@ export default function Locations() {
   const loadLocations = async () => {
     try {
       const res = await axios.get(
-        "http://127.0.0.1:8000/api/location-list/"
-      );
+  `${API_BASE}/location-list/`
+);
 
       setLocations(res.data);
     } catch (err) {
@@ -43,11 +43,11 @@ export default function Locations() {
 
     try {
       const res = await axios.post(
-        "http://127.0.0.1:8000/api/location/add/",
-        {
-          name: name.trim(),
-        }
-      );
+  `${API_BASE}/location/add/`,
+  {
+    name: name.trim(),
+  }
+);
 
       if (res.data.success) {
         setMessage("Location added successfully.");
@@ -68,8 +68,8 @@ export default function Locations() {
 
     try {
       await axios.delete(
-        `http://127.0.0.1:8000/api/location/${id}/`
-      );
+  `${API_BASE}/location/${id}/`
+);
 
       setMessage("Location deleted.");
       setMessageType("success");

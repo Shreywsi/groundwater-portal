@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import API_BASE from "../../config/api";
 import {
   Container,
   Typography,
@@ -36,7 +36,7 @@ export default function AIPrediction() {
   useEffect(() => {
 
     axios
-      .get("http://127.0.0.1:8000/api/location-list/")
+      .get(`${API_BASE}/location-list/`)
       .then((res) => {
 
         setLocations(res.data);

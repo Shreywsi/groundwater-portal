@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useMemo, useState, useEffect } from "react";
+import API_BASE from "../config/api";
 import {
   Box,
   Card,
@@ -270,8 +271,7 @@ export default function WaterBalanceCard({
   const isSurplus = totals.deltaS >= 0;
   const accent = isSurplus ? PALETTE.recharge : PALETTE.depletion;
   useEffect(() => {
-    axios
-  .get("http://127.0.0.1:8000/api/location-list/")
+    axios.get(`${API_BASE}/location-list/`)
       .then((res) => {
         setClusters(res.data);
       })
@@ -294,7 +294,7 @@ export default function WaterBalanceCard({
       setSaving(true);
 
       const response = await axios.post(
-  "http://127.0.0.1:8000/api/water-balance/add/",
+  `${API_BASE}/water-balance/add/`,
   {
     ...values,
     location: selectedLocation,

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_BASE from "../../config/api";
 import Sidebar from "../../components/Sidebar";
 import {
   Card,
@@ -29,8 +30,8 @@ export default function WaterBalanceHistory() {
   const loadHistory = async () => {
   try {
     const res = await axios.get(
-      "http://127.0.0.1:8000/api/water-balance/history/"
-    );
+  `${API_BASE}/water-balance/history/`
+);
 
     setHistory(res.data.records);
     setSummary(res.data.summary);
