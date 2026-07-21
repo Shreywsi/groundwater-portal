@@ -17,18 +17,23 @@ def export_database_to_training_dataset():
     for wb in balances:
 
         latest_level = (
-            WaterLevel.objects
-            .filter(date__lte=wb.date)
-            .order_by("-date")
-            .first()
-        )
-
+    WaterLevel.objects
+    .filter(
+        location=wb.location,
+        date__lte=wb.created_at.date()
+    )
+    .order_by("-date")
+    .first()
+)
         latest_pumping = (
-            Pumping.objects
-            .filter(date__lte=wb.date)
-            .order_by("-date")
-            .first()
-        )
+    Pumping.objects
+    .filter(
+        location=wb.location,
+        date__lte=wb.created_at.date()
+    )
+    .order_by("-date")
+    .first()
+)
 
         groundwater_depth = (
             latest_level.level

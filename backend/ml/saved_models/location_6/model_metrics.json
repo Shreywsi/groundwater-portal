@@ -1,0 +1,9 @@
+{
+    "water_balance": {
+        "rmse": 0.13347965905243545,
+        "mae": 0.08686475753784322,
+        "r2": 0.0
+    },
+    "train_samples": 19,
+    "test_samples": 5
+}

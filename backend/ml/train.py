@@ -23,22 +23,65 @@ from ml.dataset import get_active_dataset
 # ---------------------------------------------------
 # Create save directory
 # ---------------------------------------------------
-def train_model():
+def train_model(location_id):
     print("========== TRAINING STARTED ==========")
-    SAVE_DIR = "ml/saved_models"
+    SAVE_DIR = os.path.join(
+        "ml",
+        "saved_models",
+        f"location_{location_id}"
+    )
     os.makedirs(SAVE_DIR, exist_ok=True)
 
     # ---------------------------------------------------
     # Load & preprocess dataset
     # ---------------------------------------------------
 
-    dataset_path = get_active_dataset()
+    from groundwater.models import WaterBalance
 
-    df = preprocess_dataset(dataset_path)
+
+    def load_location_dataset(location_id):
+
+        rows = []
+
+        records = (
+            WaterBalance.objects
+            .filter(location_id=location_id)
+            .order_by("created_at")
+        )
+
+        for r in records:
+
+            rows.append({
+
+                "rainfall_mm": r.Rr,
+
+                "groundwater_depth": 0,
+
+                "water_balance": r.delta_s,
+
+                "month": r.created_at.month,
+
+            })
+
+        df = pd.DataFrame(rows)
+
+        if len(df) == 0:
+            raise Exception("No data found for this location.")
+
+        df["month_sin"] = np.sin(
+            2 * np.pi * df["month"] / 12
+        )
+
+        df["month_cos"] = np.cos(
+            2 * np.pi * df["month"] / 12
+        )
+
+        return df
+    df = load_location_dataset(location_id)
 
     if len(df) < 20:
         raise Exception(
-            "Need at least 20 rows to train the LSTM model."
+            f"Location {location_id} has only {len(df)} records. Need at least 20."
         )
     
 
@@ -298,5 +341,3 @@ def train_model():
     print("Model saved successfully!")
 
     print(json.dumps(metrics, indent=4))
-if __name__ == "__main__":
-    train_model()

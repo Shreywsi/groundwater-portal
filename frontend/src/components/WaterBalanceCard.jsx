@@ -297,15 +297,23 @@ export default function WaterBalanceCard({
   "http://127.0.0.1:8000/api/water-balance/add/",
   {
     ...values,
-    village_cluster: selectedLocation,
+    location: selectedLocation,
   }
 );
 
       alert(`Water Balance Saved\nΔS = ${response.data.delta_s}`);
     } catch (err) {
-      console.error(err);
-      alert("Failed to save water balance.");
-    } finally {
+  console.error(err);
+
+  console.log(err.response);
+  console.log(err.response?.data);
+
+  alert(
+    err.response?.data?.error ||
+    JSON.stringify(err.response?.data) ||
+    err.message
+  );
+} finally {
       setSaving(false);
     }
   };

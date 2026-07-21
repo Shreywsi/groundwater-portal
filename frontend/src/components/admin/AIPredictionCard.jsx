@@ -1,219 +1,228 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 import {
-  Grid,
-  Card,
-  CardContent,
+  Container,
   Typography,
-  Divider,
+  Box,
+  ToggleButton,
+  ToggleButtonGroup,
+  CircularProgress,
+  Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
-export default function AIPredictionCard({ data }) {
+import { getForecast } from "../../services/forecastApi";
+
+import AIPredictionCard from "../../components/admin/AIPredictionCard";
+
+export default function AIPrediction() {
+
+  const [period, setPeriod] = useState("monthly");
+
+  const [forecast, setForecast] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+
+  const [error, setError] = useState("");
+
+  const [locations, setLocations] = useState([]);
+
+  const [selectedLocation, setSelectedLocation] = useState("");
+
+  useEffect(() => {
+
+    axios
+      .get("http://127.0.0.1:8000/api/location-list/")
+      .then((res) => {
+
+        setLocations(res.data);
+
+        if (res.data.length > 0) {
+
+          setSelectedLocation(res.data[0].id);
+
+        }
+
+      });
+
+  }, []);
+
+  useEffect(() => {
+
+    if (selectedLocation) {
+
+      loadForecast(period, selectedLocation);
+
+    }
+
+  }, [period, selectedLocation]);
+
+  async function loadForecast(selectedPeriod, location) {
+
+    try {
+
+      setLoading(true);
+
+      setError("");
+
+      const data = await getForecast(
+        selectedPeriod,
+        location
+      );
+
+      setForecast(data);
+
+    }
+
+    catch (err) {
+
+      setError(err.message);
+
+    }
+
+    finally {
+
+      setLoading(false);
+
+    }
+
+  }
 
   return (
 
-    <Grid container spacing={3}>
+    <Container maxWidth="xl">
 
-      <Grid item xs={12} md={3}>
+      <Typography
+        variant="h4"
+        fontWeight="bold"
+        sx={{ mb: 3 }}
+      >
+        AI Water Balance Forecasting
+      </Typography>
 
-        <Card>
+      <FormControl
+        fullWidth
+        sx={{ mb: 3 }}
+      >
 
-          <CardContent>
+        <InputLabel>
 
-            <Typography
-              color="text.secondary"
-              gutterBottom
+          Location
+
+        </InputLabel>
+
+        <Select
+
+          value={selectedLocation}
+
+          label="Location"
+
+          onChange={(e) => {
+
+            setSelectedLocation(e.target.value);
+
+          }}
+
+        >
+
+          {locations.map((location) => (
+
+            <MenuItem
+              key={location.id}
+              value={location.id}
             >
-              Predicted Water Balance
-            </Typography>
 
-            <Typography
-              variant="h3"
-              fontWeight="bold"
-            >
-              {data.prediction} mcm
-            </Typography>
+              {location.name}
 
-          </CardContent>
+            </MenuItem>
 
-        </Card>
+          ))}
 
-      </Grid>
+        </Select>
 
-      <Grid item xs={12} md={3}>
+      </FormControl>
 
-        <Card>
+      <ToggleButtonGroup
 
-          <CardContent>
+        exclusive
 
-            <Typography
-              color="text.secondary"
-              gutterBottom
-            >
-              Confidence
-            </Typography>
+        value={period}
 
-            <Typography
-              variant="h3"
-              color="primary"
-              fontWeight="bold"
-            >
-              {data.confidence}%
-            </Typography>
+        onChange={(e, value) => {
 
-            <Typography>
+          if (value) {
 
-              {data.confidence_level}
+            setPeriod(value);
 
-            </Typography>
+          }
 
-          </CardContent>
+        }}
 
-        </Card>
+        sx={{ mb: 4 }}
 
-      </Grid>
+      >
 
-      <Grid item xs={12} md={3}>
+        <ToggleButton value="monthly">
+          Monthly
+        </ToggleButton>
 
-        <Card>
+        <ToggleButton value="quarterly">
+          Quarterly
+        </ToggleButton>
 
-          <CardContent>
+        <ToggleButton value="halfyearly">
+          Half-Yearly
+        </ToggleButton>
 
-            <Typography
-              color="text.secondary"
-              gutterBottom
-            >
-              Forecast Range
-            </Typography>
+        <ToggleButton value="annual">
+          Annual
+        </ToggleButton>
 
-            <Typography
-              variant="h5"
-              fontWeight="bold"
-            >
-              {data.prediction_range.lower} m
+        <ToggleButton value="10years">
+          10 Years
+        </ToggleButton>
 
-              <br />
+        <ToggleButton value="30years">
+          30 Years
+        </ToggleButton>
 
-              —
+      </ToggleButtonGroup>
 
-              <br />
+      {loading && (
 
-              {data.prediction_range.upper} m
+        <Box mt={5}>
 
-            </Typography>
+          <CircularProgress />
 
-          </CardContent>
+        </Box>
 
-        </Card>
+      )}
 
-      </Grid>
+      {error && (
 
-      <Grid item xs={12} md={3}>
+        <Alert severity="error">
 
-        <Card>
+          {error}
 
-          <CardContent>
+        </Alert>
 
-            <Typography
-              color="text.secondary"
-              gutterBottom
-            >
-              Historical Dataset
-            </Typography>
+      )}
 
-            <Typography
-              variant="h3"
-              fontWeight="bold"
-            >
-              {data.years_of_history}
-            </Typography>
+      {!loading &&
+        !error &&
+        forecast && (
 
-            <Typography>
+          <AIPredictionCard
+            data={forecast}
+          />
 
-              Years
+      )}
 
-            </Typography>
-
-          </CardContent>
-
-        </Card>
-
-      </Grid>
-
-      <Grid item xs={12}>
-
-        <Card>
-
-          <CardContent>
-
-            <Typography
-              variant="h5"
-              fontWeight="bold"
-            >
-              Model Performance
-            </Typography>
-
-            <Divider sx={{ my:2 }} />
-
-            <Grid container spacing={3}>
-
-              <Grid item xs={6} md={2}>
-                <Typography color="text.secondary">
-                  RMSE
-                </Typography>
-
-                <Typography variant="h6">
-                  {data.model_metrics.rmse}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={6} md={2}>
-                <Typography color="text.secondary">
-                  MAE
-                </Typography>
-
-                <Typography variant="h6">
-                  {data.model_metrics.mae}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={6} md={2}>
-                <Typography color="text.secondary">
-                  R²
-                </Typography>
-
-                <Typography variant="h6">
-                  {data.model_metrics.r2}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={6} md={3}>
-                <Typography color="text.secondary">
-                  Training Samples
-                </Typography>
-
-                <Typography variant="h6">
-                  {data.model_metrics.train_samples}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={6} md={3}>
-                <Typography color="text.secondary">
-                  Testing Samples
-                </Typography>
-
-                <Typography variant="h6">
-                  {data.model_metrics.test_samples}
-                </Typography>
-              </Grid>
-
-            </Grid>
-
-          </CardContent>
-
-        </Card>
-
-      </Grid>
-
-    </Grid>
+    </Container>
 
   );
 

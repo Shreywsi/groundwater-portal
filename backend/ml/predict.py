@@ -1,21 +1,24 @@
 import json
 import joblib
 import numpy as np
-from pathlib import Path
+import pandas as pd
 
+from pathlib import Path
 from tensorflow.keras.models import load_model
 
-from ml.dataset import get_active_dataset
-from ml.preprocess import preprocess_dataset
+from groundwater.models import WaterBalance
 
 BASE_DIR = Path(__file__).resolve().parent
 
-MODEL_PATH = BASE_DIR / "saved_models" / "water_balance_model.keras"
-SCALER_PATH = BASE_DIR / "saved_models" / "water_balance_scaler.pkl"
-CONFIG_PATH = BASE_DIR / "saved_models" / "model_config.json"
 
 
-def predict_water_balance():
+
+def predict_water_balance(location_id):
+    SAVE_DIR = BASE_DIR / "saved_models" / f"location_{location_id}"
+
+    MODEL_PATH = SAVE_DIR / "water_balance_model.keras"
+    SCALER_PATH = SAVE_DIR / "water_balance_scaler.pkl"
+    CONFIG_PATH = SAVE_DIR / "model_config.json"
 
     if not MODEL_PATH.exists():
         raise Exception("Model has not been trained yet.")
@@ -36,16 +39,38 @@ def predict_water_balance():
     sequence_length = config["sequence_length"]
     target_index = config["target_index"]
 
-    df = preprocess_dataset(get_active_dataset())
+    # If a location is supplied, use only that location's data
+    
+
+    rows = []
+
+    records = (
+        WaterBalance.objects
+        .filter(location_id=location_id)
+        .order_by("created_at")
+    )
+    if not records.exists():
+        raise Exception("No water balance data found for this location.")
+    for r in records:
+        rows.append({
+            "rainfall_mm": r.Rr,
+            "groundwater_depth": 0,
+            "water_balance": r.delta_s,
+            "month": r.created_at.month,
+        })
+
+    df = pd.DataFrame(rows)
+
+    df["month_sin"] = np.sin(2 * np.pi * df["month"] / 12)
+    df["month_cos"] = np.cos(2 * np.pi * df["month"] / 12)
+
+    if len(df) < sequence_length:
+        raise Exception(
+            f"Need at least {sequence_length} records for prediction."
+        )
 
     data = df[features].values
-
     scaled = scaler.transform(data)
-
-    if len(scaled) < sequence_length:
-        raise Exception(
-            f"Dataset must contain at least {sequence_length} rows."
-        )
 
     sequence = scaled[-sequence_length:]
 
@@ -68,4 +93,4 @@ def predict_water_balance():
 
 
 if __name__ == "__main__":
-    print(predict_water_balance())
+    print(predict_water_balance(6))

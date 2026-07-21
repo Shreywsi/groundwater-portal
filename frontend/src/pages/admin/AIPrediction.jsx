@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 
 import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   Container,
   Typography,
   Box,
@@ -17,7 +21,7 @@ import AIPredictionCard from "../../components/admin/AIPredictionCard";
 export default function AIPrediction() {
 
   const [period, setPeriod] = useState("monthly");
-
+  const [location, setLocation] = useState(6);
   const [forecast, setForecast] = useState(null);
 
   const [loading, setLoading] = useState(false);
@@ -25,12 +29,10 @@ export default function AIPrediction() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+      loadForecast(period, location);
+  }, [period, location]);
 
-    loadForecast(period);
-
-  }, [period]);
-
-  async function loadForecast(selectedPeriod) {
+  async function loadForecast(selectedPeriod, selectedLocation) {
 
     try {
 
@@ -38,7 +40,10 @@ export default function AIPrediction() {
 
       setError("");
 
-      const data = await getForecast(selectedPeriod);
+      const data = await getForecast(
+        selectedPeriod,
+        selectedLocation
+    );
 
       setForecast(data);
 
@@ -71,7 +76,33 @@ export default function AIPrediction() {
         AI Water Balance Forecasting
 
       </Typography>
+      <FormControl
+    sx={{ minWidth: 250, mb: 3 }}
+>
 
+    <InputLabel>
+        Location
+    </InputLabel>
+
+    <Select
+        value={location}
+        label="Location"
+        onChange={(e) =>
+            setLocation(e.target.value)
+        }
+    >
+
+        <MenuItem value={5}>
+            Mundra
+        </MenuItem>
+
+        <MenuItem value={6}>
+            Abdasa
+        </MenuItem>
+
+    </Select>
+
+</FormControl>
       <ToggleButtonGroup
 
         exclusive
