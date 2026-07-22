@@ -29,3 +29,5 @@ dist/
 # macOS
 # -----------------------------
 .DS_Storebackend/staticfiles/
+.DS_Store
+backend/staticfiles/
