@@ -6,11 +6,11 @@ import threading
 import traceback
 
 from datetime import datetime
-from ml.preprocess import preprocess_dataset
-from ml.retrain import retrain_model
+#from ml.preprocess import preprocess_dataset
+#from ml.retrain import retrain_model
 from django.conf import settings
 from .models import Dataset
-from ml.build_dataset import build_master_dataset
+#from ml.build_dataset import build_master_dataset
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -26,11 +26,9 @@ import zipfile
 from pathlib import Path
 from rest_framework.response import Response
 import subprocess
-from rest_framework.decorators import api_view
 from rest_framework.authtoken.models import Token
-from ml.forecast import forecast_water_balance
+#from ml.forecast import forecast_water_balance
 from .gempy_service import build_geological_model
-from groundwater.models import Location
 
 
 from rest_framework import status
@@ -46,8 +44,7 @@ from .models import (
     Location,
 )
 from .modflow_service import run_modflow
-from .models import UserProfile
-from ml.dataset import set_active_dataset
+#from ml.dataset import set_active_dataset
 import logging
 from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -284,16 +281,30 @@ def pumping(request):
 @permission_classes([IsAuthenticated])
 def open_qgis(request):
 
-    QGIS_PROJECT = os.path.join(
-    settings.BASE_DIR,
-    "qgis",
-    "WaterManagement.qgz"
-)
+    qgis_project = os.path.join(
+        settings.BASE_DIR,
+        "qgis",
+        "WaterManagement.qgz"
+    )
 
-    return Response({
-    "success": True,
-    "message": "QGIS launched successfully."
-})
+    try:
+        subprocess.Popen([
+            "open",
+            "-a",
+            "QGIS",
+            qgis_project
+        ])
+
+        return Response({
+            "success": True,
+            "message": "QGIS launched successfully."
+        })
+
+    except Exception as e:
+        return Response({
+            "success": False,
+            "message": str(e)
+        }, status=500)
 
 
 @api_view(["POST"])
@@ -340,7 +351,6 @@ def run_gempy(request):
     result = build_geological_model()
     return Response(result)
 
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .gempy_service import build_geological_model
@@ -1027,8 +1037,16 @@ def water_balance_prediction(request):
             "success": False,
             "message": "Location is required."
         }, status=400)
-
-    prediction = predict_water_balance(int(location_id))
+    try:
+        location_id = int(location_id)
+    except ValueError:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Invalid location."
+            },
+            status=400
+        )
 
     return JsonResponse({
         "status": "success",
@@ -1163,7 +1181,7 @@ def add_water_balance(request):
     # Export datasets
     # Export only this location's dataset
     from ml.dataset_export import export_location_dataset
-
+    from ml.train import train_model
     rows = export_location_dataset(location.id)
 
     logger.info(
@@ -1172,16 +1190,13 @@ def add_water_balance(request):
         location.id,
     )
     try:
-        from ml.train import train_model
-
         if rows >= 8:
             logger.info(
                 "Training model for location %s",
                 location.id
             )
 
-            train_model(location.id)
-
+            retrain_model_task.delay(location.id)
         else:
             logger.info(
                 "Skipping training. Only %s rows available.",
@@ -1204,7 +1219,11 @@ from django.db.models import Avg
 @api_view(["GET"])
 def water_balance_history(request):
 
-    records = WaterBalance.objects.order_by("-created_at")
+    location_id = request.GET.get("location")
+
+    records = WaterBalance.objects.filter(
+        location_id=location_id
+    ).order_by("-created_at")
 
     data = []
 
@@ -1250,6 +1269,10 @@ from rest_framework.response import Response
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def upload_dataset(request):
+    from ml.preprocess import preprocess_dataset
+    from ml.build_dataset import build_master_dataset
+    from ml.dataset import set_active_dataset
+    from ml.retrain import retrain_model
     file = request.FILES.get("file")
 
     if not file:
@@ -1372,8 +1395,9 @@ def upload_dataset(request):
 @api_view(["POST"])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def retrain_lstm(request):
 
+def retrain_lstm(request):
+    from ml.retrain import retrain_model
     location_id = request.data.get("location")
 
     if not location_id:
@@ -1396,7 +1420,6 @@ def retrain_lstm(request):
 @api_view(["GET"])
 def ai_dashboard(request):
 
-    from ml.predict import predict_water_balance
 
     location_id = request.GET.get("location")
 
@@ -1498,8 +1521,8 @@ def ai_dashboard(request):
     })
 
 @api_view(["GET"])
-def forecast_api(request, period):
 
+def forecast_api(request, period):
     periods = {
         "monthly": 1,
         "quarterly": 3,
@@ -1561,6 +1584,7 @@ def forecast_api(request, period):
         )
     metrics_path = os.path.join(
     settings.BASE_DIR,
+    "ml",
     "saved_models",
     f"location_{location.id}",
     "model_metrics.json",
@@ -1576,8 +1600,9 @@ def forecast_api(request, period):
         location=location
     ).count()
 
-    rmse = metrics.get("rmse")
-    r2 = metrics.get("r2")
+    rmse = metrics.get("water_balance", {}).get("rmse")
+    mae = metrics.get("water_balance", {}).get("mae")
+    r2 = metrics.get("water_balance", {}).get("r2")
 
     # -------------------------
     # Confidence
