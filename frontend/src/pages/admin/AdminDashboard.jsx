@@ -132,7 +132,39 @@ export default function AdminDashboard() {
       setGempyLoading(false);
     }
   };
+  const handleOpenGIS = async () => {
+  try {
+    // Check if launcher is running
+    const statusResponse = await fetch("http://127.0.0.1:5001/status");
 
+    if (!statusResponse.ok) {
+      alert("Water Management Launcher is not running.");
+      return;
+    }
+
+    const status = await statusResponse.json();
+
+    if (!status.installed) {
+      alert("QGIS is not installed on this computer.");
+      return;
+    }
+
+    // Ask launcher to open QGIS
+    const response = await fetch("http://127.0.0.1:5001/open-qgis", {
+      method: "POST",
+    });
+
+    const result = await response.json();
+
+    alert(result.message);
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      "Water Management Launcher is not running.\n\nPlease start the launcher first."
+    );
+  }
+};
   /* Responsive chart heights */
   const barChartHeight = isSmDown ? 260 : isMdDown ? 300 : 340;
   const lineChartHeight = isSmDown ? 220 : 280;
@@ -313,11 +345,7 @@ export default function AdminDashboard() {
             variant="contained"
             startIcon={<MapIcon />}
             sx={{ mb: 2 }}
-            onClick={async () => {
-              await fetch(`${API_BASE}/open-qgis/`, {
-                method: "POST",
-              });
-            }}
+            onClick={handleOpenGIS}
           >
             Open GIS Workspace
           </Button>

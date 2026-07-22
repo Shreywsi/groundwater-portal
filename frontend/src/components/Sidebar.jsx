@@ -10,10 +10,7 @@ import {
 } from "@mui/material";
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import FolderIcon from "@mui/icons-material/Folder";
 import MapIcon from "@mui/icons-material/Map";
-import DescriptionIcon from "@mui/icons-material/Description";
-import SettingsIcon from "@mui/icons-material/Settings";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import LogoutIcon from "@mui/icons-material/Logout";
 import WaterDropRoundedIcon from "@mui/icons-material/WaterDropRounded";
@@ -44,24 +41,9 @@ export default function Sidebar() {
     path: "/admin/ai",
   },
   {
-    title: "My Workspace",
-    icon: <FolderIcon />,
-    path: "/admin/workspace",
-  },
-  {
     title: "GIS Workspace",
     icon: <MapIcon />,
     path: "/admin/gis",
-  },
-  {
-    title: "Reports",
-    icon: <DescriptionIcon />,
-    path: "/admin/reports",
-  },
-  {
-    title: "Settings",
-    icon: <SettingsIcon />,
-    path: "/admin/settings",
   },
   {
     title: "Locations",

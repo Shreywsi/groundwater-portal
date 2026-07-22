@@ -271,12 +271,19 @@ export default function WaterBalanceCard({
   const isSurplus = totals.deltaS >= 0;
   const accent = isSurplus ? PALETTE.recharge : PALETTE.depletion;
   useEffect(() => {
-    axios.get(`${API_BASE}/location-list/`)
-      .then((res) => {
-        setClusters(res.data);
-      })
-      .catch(console.error);
-  }, []);
+  console.log("WaterBalance mounted");
+  console.log("API_BASE =", API_BASE);
+
+  axios
+    .get(`${API_BASE}/location-list/`)
+    .then((res) => {
+      console.log("Location response:", res.data);
+      setClusters(res.data);
+    })
+    .catch((err) => {
+      console.error("Location error:", err);
+    });
+}, []);
 
   const handleFieldChange = (key, raw) => {
     // Allow empty string while typing, otherwise parse as float
