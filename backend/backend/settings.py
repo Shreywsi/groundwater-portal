@@ -46,15 +46,26 @@ def get_env(name, default=None):
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_env("SECRET_KEY", "django-insecure-#prdn9dy9q__6160+8201bw0j8*z%=ba3118r8+nw-gpxa88ua")
-
+SECRET_KEY = get_env("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable is not set. Check your .env file.")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_env("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
+DEBUG = get_env("DEBUG", "False").lower() in {"1", "true", "yes", "on"}
 
 ALLOWED_HOSTS = [
     host.strip() for host in get_env("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if host.strip()
 ]
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in get_env("CSRF_TRUSTED_ORIGINS", "").split(",") if origin.strip()
+]
 
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 7  # 1 week to start; raise once stable
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
@@ -76,8 +87,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',   # ADD THIS LINE
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -117,6 +128,9 @@ DATABASES = {
         "PASSWORD": get_env("DATABASE_PASSWORD", "postgres"),
         "HOST": get_env("DATABASE_HOST", "localhost"),
         "PORT": get_env("DATABASE_PORT", "5432"),
+        "OPTIONS": {
+            "sslmode": get_env("DATABASE_SSLMODE", "require"),
+        },
     }
 }
 
@@ -156,13 +170,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
 CORS_ALLOWED_ORIGINS = [
     origin.strip() for origin in get_env("CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",") if origin.strip()
 ]
 
 
 # Celery
-CELERY_BROKER_URL = get_env("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_BROKER_URL = get_env("REDIS_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
