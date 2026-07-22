@@ -11,9 +11,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 
-from ml.predict import predict_water_balance
-from ..gempy_service import build_geological_model
-from ..modflow_service import run_modflow
 from ..models import Dataset, Location, WaterBalance
 
 import logging
@@ -25,17 +22,17 @@ logger = logging.getLogger(__name__)
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def run_gempy(request):
+    from ..gempy_service import build_geological_model
     result = build_geological_model()
     return Response(result)
 
 
 @api_view(["POST"])
 def run_modflow_view(request):
+    from ..gempy_service import build_geological_model
+    from ..modflow_service import run_modflow
 
-    # Step 1: Build geology
     geology = build_geological_model()
-
-    # Step 2: Run groundwater model
     modflow = run_modflow()
 
     return Response({
@@ -73,7 +70,7 @@ def retrain_lstm(request):
 
 @api_view(["GET"])
 def ai_dashboard(request):
-
+    from ml.predict import predict_water_balance
 
     location_id = request.GET.get("location")
 
@@ -176,8 +173,8 @@ def ai_dashboard(request):
 
 
 @api_view(["GET"])
-
 def forecast_api(request, period):
+    from ml.predict import predict_water_balance
     periods = {
         "monthly": 1,
         "quarterly": 3,
