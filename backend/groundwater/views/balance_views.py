@@ -132,29 +132,41 @@ def add_water_balance(request):
         rows,
         location.id,
     )
-    try:
-        if rows >= 8:
+
+    training_triggered = False
+    training_error = None
+
+    if rows >= 8:
+        logger.info(
+            "Training model for location %s (synchronous)",
+            location.id
+        )
+        try:
+            train_model(location.id)
+            training_triggered = True
             logger.info(
-                "Training model for location %s",
+                "Training complete for location %s",
                 location.id
             )
-
-            retrain_model_task.delay(location.id)
-        else:
-            logger.info(
-                "Skipping training. Only %s rows available.",
-                rows
+        except Exception as e:
+            logger.exception(
+                "Training failed for location %s",
+                location.id
             )
+            training_error = str(e)
+    else:
+        logger.info(
+            "Skipping training. Only %s rows available.",
+            rows
+        )
 
-    except Exception as e:
-        logger.exception(e)
-    # from ml.tasks import retrain_model_task
-    # retrain_model_task.delay(location.id)
     return Response(
         {
             "success": True,
             "id": record.id,
             "delta_s": delta_s,
+            "training_triggered": training_triggered,
+            "training_error": training_error,
         }
     )
 
