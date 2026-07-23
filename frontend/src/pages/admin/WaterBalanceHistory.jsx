@@ -16,32 +16,56 @@ import {
   TextField,
   Paper,
   Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
 export default function WaterBalanceHistory() {
   const [history, setHistory] = useState([]);
-    const [summary, setSummary] = useState({});
+  const [summary, setSummary] = useState({});
   const [search, setSearch] = useState("");
+  const [locations, setLocations] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState("");
 
+  // Load list of locations once, on page load
   useEffect(() => {
-    loadHistory();
+    const loadLocations = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/location-list/`);
+        setLocations(res.data);
+        if (res.data.length > 0) {
+          setSelectedLocation(res.data[0].id);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadLocations();
   }, []);
 
-  const loadHistory = async () => {
-  try {
-    const res = await axios.get(
-  `${API_BASE}/water-balance/history/`
-);
+  // Reload history whenever the selected location changes
+  useEffect(() => {
+    if (selectedLocation) {
+      loadHistory(selectedLocation);
+    }
+  }, [selectedLocation]);
 
-    setHistory(res.data.records);
-    setSummary(res.data.summary);
+  const loadHistory = async (locationId) => {
+    try {
+      const res = await axios.get(`${API_BASE}/water-balance/history/`, {
+        params: { location: locationId },
+      });
 
-  } catch (err) {
-    console.error(err);
-    setHistory([]);
-    setSummary({});
-  }
-};
+      setHistory(res.data.records);
+      setSummary(res.data.summary);
+    } catch (err) {
+      console.error(err);
+      setHistory([]);
+      setSummary({});
+    }
+  };
 
   const filteredHistory = history.filter((item) =>
   `${item.date} ${item.time}`
@@ -65,6 +89,26 @@ export default function WaterBalanceHistory() {
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         Water Balance History
       </Typography>
+
+      {/* LOCATION SELECTOR */}
+      <FormControl sx={{ minWidth: 250, mb: 3 }}>
+        <InputLabel>Location</InputLabel>
+        <Select
+          value={selectedLocation}
+          label="Location"
+          onChange={(e) => setSelectedLocation(e.target.value)}
+        >
+          {locations.length === 0 ? (
+            <MenuItem disabled>No Locations Found</MenuItem>
+          ) : (
+            locations.map((loc) => (
+              <MenuItem key={loc.id} value={loc.id}>
+                {loc.name}
+              </MenuItem>
+            ))
+          )}
+        </Select>
+      </FormControl>
 
       {/* SUMMARY CARDS */}
 
